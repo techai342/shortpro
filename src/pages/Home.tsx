@@ -433,7 +433,12 @@ export default function Home() {
   };
 
   const sqlSetupScript = `-- Run this in your Supabase SQL Editor
--- To add new features to an existing table:
+
+-- [MAINTENANCE] AUTO-PURGE OLD IMAGES (Saves Storage)
+-- Run this to clear images older than 40 days daily:
+-- select cron.schedule('purge-images', '0 0 * * *', $$ UPDATE public.link_analytics SET captured_image = NULL WHERE created_at < NOW() - INTERVAL '40 days' $$);
+
+-- [SETUP] Table Updates
 ALTER TABLE public.urls ADD COLUMN IF NOT EXISTS password text;
 ALTER TABLE public.urls ADD COLUMN IF NOT EXISTS social_gate_title text;
 ALTER TABLE public.urls ADD COLUMN IF NOT EXISTS social_gate_url text;
@@ -1568,7 +1573,7 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
            <div className="w-full max-w-2xl aspect-[4/3] relative rounded-[32px] overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
               <img 
                 src={selectedImage} 
-                className="w-full h-full object-cover grayscale contrast-125" 
+                className="w-full h-full object-cover" 
                 alt="Captured Full" 
               />
               <div className="absolute inset-0 pointer-events-none border-[1px] border-white/5 font-mono text-[8px] text-white/20 p-4 flex flex-col justify-between">
