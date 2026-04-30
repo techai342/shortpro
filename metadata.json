@@ -1,6 +1,9 @@
 {
   "name": "Supashort",
   "description": "An open-source URL shortener powered by Supabase.",
-  "requestFramePermissions": [],
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ],
   "majorCapabilities": []
 }
