@@ -80,6 +80,13 @@ export default function Home() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [mobileTab, setMobileTab] = useState<'create' | 'recent'>('create');
+  const resultRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (shortUrl && resultRef.current) {
+      resultRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [shortUrl]);
 
   useEffect(() => {
     // Check if app is already installed
@@ -776,19 +783,20 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
 
         {/* Main Content Area */}
         <main className={cn(
-          "flex-1 flex flex-col items-center justify-center p-6 md:p-20 bg-[radial-gradient(circle_at_top,_#1a1a1a_0%,_#0a0a0a_70%)] overflow-y-auto",
+          "flex-1 flex flex-col items-center justify-center p-4 md:p-20 bg-[radial-gradient(circle_at_top,_#1a1a1a_0%,_#0a0a0a_70%)] overflow-y-auto",
           mobileTab === 'create' ? "flex" : "hidden md:flex"
         )}>
-          <div className="w-full max-w-2xl mt-auto md:mt-0 mb-auto">
-            <div className="mb-10 text-center">
-              <h1 className="text-4xl font-light tracking-tight mb-2">
+          <div className="w-full max-w-2xl mt-4 md:mt-0 mb-auto">
+            <div className="mb-6 md:mb-10 text-center">
+              <h1 className="text-3xl md:text-4xl font-light tracking-tight mb-2">
                 Simplify your <span className="font-medium text-blue-500">Links</span>.
               </h1>
-              <p className="text-zinc-500">Paste a long URL and get a short link instantly.</p>
+              <p className="text-sm text-zinc-500">Paste a long URL and get a short link instantly.</p>
             </div>
 
-            {/* Shortener Tool */}
-            <div className="bg-zinc-900/50 border border-white/10 p-6 md:p-8 rounded-2xl backdrop-blur-xl shadow-2xl">
+            <div className="flex flex-col gap-6">
+              {/* Shortener Tool Form */}
+              <div className="bg-zinc-900/50 border border-white/10 p-6 md:p-8 rounded-[32px] backdrop-blur-xl shadow-2xl">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label htmlFor="url" className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 block">
@@ -1107,31 +1115,35 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
               </form>
             </div>
 
-            {/* Result Card */}
+            {/* Result Card - Moved back to bottom with auto-scroll */}
             {shortUrl && (
-              <div className="mt-8 flex items-center justify-between bg-emerald-500/5 border border-emerald-500/20 p-4 rounded-xl animate-in fade-in duration-500">
-                <div className="flex items-center gap-4 min-w-0">
-                  <div className="p-2 bg-emerald-500/20 rounded shrink-0">
-                    <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
+              <div 
+                ref={resultRef}
+                className="bg-emerald-500/5 border border-emerald-500/20 p-4 md:p-6 rounded-2xl animate-in slide-in-from-bottom-8 duration-500 shadow-[0_0_40px_rgba(16,185,129,0.05)]"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 md:gap-4 min-w-0">
+                    <div className="p-2 bg-emerald-500/20 rounded-xl shrink-0">
+                      <Check className="w-5 h-5 text-emerald-500" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] text-emerald-500/70 font-bold uppercase tracking-widest mb-1 text-[8px] md:text-xs">Success! Link Ready</p>
+                      <p className="text-sm md:text-lg font-medium truncate text-emerald-400">{shortUrl.replace(/^https?:\/\//, '')}</p>
+                    </div>
                   </div>
-                  <div className="min-w-0 pr-4">
-                    <p className="text-[10px] text-emerald-500/70 font-bold uppercase tracking-widest">Link Ready</p>
-                    <p className="text-lg font-medium truncate text-emerald-400">{shortUrl.replace(/^https?:\/\//, '')}</p>
-                  </div>
+                  <button
+                    onClick={() => copyToClipboard(shortUrl)}
+                    className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-emerald-500/20 transition-all shrink-0 flex items-center gap-2"
+                  >
+                    {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                    <span className="hidden sm:inline">{copied ? 'Copied' : 'Copy Link'}</span>
+                  </button>
                 </div>
-                <button
-                  onClick={() => copyToClipboard(shortUrl)}
-                  className="px-4 py-2 border border-emerald-500/30 text-emerald-400 rounded-lg text-sm font-medium hover:bg-emerald-500/10 transition-colors shrink-0 flex items-center gap-2"
-                >
-                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                  <span className="hidden sm:inline">{copied ? 'Copied' : 'Copy Link'}</span>
-                </button>
               </div>
             )}
           </div>
-        </main>
+        </div>
+      </main>
       </div>
 
       {/* Mobile Bottom Navigation */}
@@ -1640,10 +1652,10 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
               </button>
            </div>
            
-           <div className="w-full max-w-2xl aspect-[4/3] relative rounded-[32px] overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+           <div className="w-full max-w-2xl max-h-[80vh] relative rounded-[32px] overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] bg-black/50">
               <img 
                 src={selectedImage} 
-                className="w-full h-full object-cover" 
+                className="w-full h-full max-h-[80vh] object-contain" 
                 alt="Captured Full" 
               />
               <div className="absolute inset-0 pointer-events-none border-[1px] border-white/5 font-mono text-[8px] text-white/20 p-4 flex flex-col justify-between">
