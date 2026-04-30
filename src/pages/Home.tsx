@@ -61,17 +61,31 @@ export default function Home() {
   const [isUpdating, setIsUpdating] = useState(false);
 
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
+    // Check if app is already installed
+    if (window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone) {
+      setIsInstalled(true);
+    }
+
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
+      // Optional: Maybe show a "New: App Available" toast here
+    };
+
+    const handleAppInstalled = () => {
+      setDeferredPrompt(null);
+      setIsInstalled(true);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
 
@@ -462,24 +476,40 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
             <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
             <span className="text-[11px] text-emerald-400 font-medium uppercase tracking-wider">Supabase Connected</span>
           </div>
-          <button 
-            type="button"
-            className="text-xs font-medium px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-md transition-colors flex items-center gap-2"
-            onClick={async () => {
-              if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                  setDeferredPrompt(null);
+          {!isInstalled && (
+            <button 
+              type="button"
+              className={cn(
+                "text-xs font-medium px-3 py-1.5 border rounded-md transition-colors flex items-center gap-2",
+                deferredPrompt 
+                  ? "bg-blue-600 border-blue-500 text-white hover:bg-blue-700" 
+                  : "bg-white/5 border-white/10 text-zinc-400 hover:bg-white/10"
+              )}
+              onClick={async () => {
+                if (deferredPrompt) {
+                  deferredPrompt.prompt();
+                  const { outcome } = await deferredPrompt.userChoice;
+                  if (outcome === 'accepted') {
+                    setDeferredPrompt(null);
+                  }
+                } else {
+                  // If no prompt, it might be because we are in an iframe (AI Studio preview)
+                  if (window.self !== window.top) {
+                    if (confirm("Browser installation prompts often don't work inside iframes. Open app in a new tab to see the 'Install' option?")) {
+                      window.open(window.location.href, '_blank');
+                    }
+                  } else {
+                    alert("Install option not yet available. Please try again after using the app for a moment or check your browser menu.");
+                  }
                 }
-              } else {
-                alert("To install: Use your browser's 'Add to Home Screen' or 'Install App' option, which appears in the address bar or menu.");
-              }
-            }}
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Install App</span>
-          </button>
+              }}
+            >
+              <Download className={cn("w-3.5 h-3.5", deferredPrompt && "animate-bounce")} />
+              <span className="hidden sm:inline">
+                {deferredPrompt ? "Install Now" : "Install App"}
+              </span>
+            </button>
+          )}
           <div className="w-8 h-8 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
              <svg className="w-5 h-5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
           </div>
