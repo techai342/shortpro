@@ -1,11 +1,45 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { generateShortCode, cn } from '../lib/utils';
-import { Link2, Copy, Check, Sparkles, Settings2, Database, AlertCircle, Trash2 } from 'lucide-react';
+import { Link2, Copy, Check, Sparkles, Settings2, Database, AlertCircle, Trash2, Lock, Edit2, X, Download } from 'lucide-react';
+import { SocialIcon } from '../components/SocialIcon';
+
+const SOCIAL_ICONS = [
+  { id: 'link', label: 'Default' },
+  { id: 'youtube', label: 'YouTube' },
+  { id: 'instagram', label: 'Instagram' },
+  { id: 'twitter', label: 'Twitter' },
+  { id: 'facebook', label: 'Facebook' },
+  { id: 'whatsapp', label: 'Chat' },
+  { id: 'linkedin', label: 'LinkedIn' },
+  { id: 'snapchat', label: 'Snapchat' },
+  { id: 'tiktok', label: 'TikTok' },
+];
+
+const getDeviceId = () => {
+  try {
+    let devId = localStorage.getItem('supashort_device_id');
+    if (!devId) {
+      devId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      localStorage.setItem('supashort_device_id', devId);
+    }
+    return devId;
+  } catch {
+    return 'fallback-device-id';
+  }
+};
 
 export default function Home() {
   const [longUrl, setLongUrl] = useState('');
   const [customCode, setCustomCode] = useState('');
+  const [isPasswordEnabled, setIsPasswordEnabled] = useState(false);
+  const [password, setPassword] = useState('');
+  const [isSocialGateEnabled, setIsSocialGateEnabled] = useState(false);
+  const [socialGateTitle, setSocialGateTitle] = useState('');
+  const [socialGateUrl, setSocialGateUrl] = useState('');
+  const [socialGateIcon, setSocialGateIcon] = useState('link');
+  const [socialGateDescription, setSocialGateDescription] = useState('Complete the action below to unlock your link.');
+  const [socialGateButtonText, setSocialGateButtonText] = useState('Verify & Continue');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [shortUrl, setShortUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -13,6 +47,34 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [needsSetup, setNeedsSetup] = useState(false);
   
+  const [editingLink, setEditingLink] = useState<{
+    code: string, 
+    enablePassword: boolean, 
+    newPassword: string,
+    enableSocialGate: boolean,
+    socialGateTitle: string,
+    socialGateUrl: string,
+    socialGateIcon: string,
+    socialGateDescription: string,
+    socialGateButtonText: string,
+  } | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
   // For saving history locally to browser
   const [history, setHistory] = useState(() => {
     try {
@@ -22,6 +84,41 @@ export default function Home() {
       return [];
     }
   });
+
+  const handleEditClick = async (code: string) => {
+    try {
+      const domain = window.location.hostname;
+      const { data, error } = await supabase
+        .from('urls')
+        .select('*')
+        .eq('domain', domain)
+        .eq('short_code', code)
+        .single();
+        
+      if (error) {
+         if (error.code === 'PGRST116') {
+             alert('Link not found.');
+             return;
+         }
+         throw error;
+      }
+      
+      setEditingLink({
+        code,
+        enablePassword: !!data.password,
+        newPassword: '', // Don't show existing password
+        enableSocialGate: !!(data.social_gate_title && data.social_gate_url),
+        socialGateTitle: data.social_gate_title || '',
+        socialGateUrl: data.social_gate_url || '',
+        socialGateIcon: data.social_gate_icon || 'link',
+        socialGateDescription: data.social_gate_description || 'Complete the action below to unlock your link.',
+        socialGateButtonText: data.social_gate_button_text || 'Verify & Continue'
+      });
+    } catch (err) {
+      console.error(err);
+      alert("Failed to load link details for editing.");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +152,18 @@ export default function Home() {
       const domain = window.location.hostname;
       const { error: dbError } = await supabase
         .from('urls')
-        .insert([{ domain, short_code: code, long_url: urlToShorten }]);
+        .insert([{ 
+          domain, 
+          short_code: code, 
+          long_url: urlToShorten, 
+          password: isPasswordEnabled && password ? password : null,
+          social_gate_title: isSocialGateEnabled && socialGateTitle && socialGateUrl ? socialGateTitle : null,
+          social_gate_url: isSocialGateEnabled && socialGateTitle && socialGateUrl ? socialGateUrl : null,
+          social_gate_icon: isSocialGateEnabled && socialGateTitle && socialGateUrl ? socialGateIcon : null,
+          social_gate_description: isSocialGateEnabled ? socialGateDescription : null,
+          social_gate_button_text: isSocialGateEnabled ? socialGateButtonText : null,
+          device_id: getDeviceId()
+        }]);
 
       if (dbError) {
         console.error("Insert error:", dbError);
@@ -77,18 +185,96 @@ export default function Home() {
       const generatedUrl = `${window.location.origin}/${code}`;
       setShortUrl(generatedUrl);
       
-      const newHistoryItem = { code, longUrl: urlToShorten, shortUrl: generatedUrl, date: new Date().toISOString() };
-      const updatedHistory = [newHistoryItem, ...history].slice(0, 5); // Keep last 5
+      const newHistoryItem = { 
+        code, 
+        longUrl: urlToShorten, 
+        shortUrl: generatedUrl, 
+        date: new Date().toISOString(), 
+        hasPassword: isPasswordEnabled && password ? true : false,
+        hasSocialGate: isSocialGateEnabled && socialGateTitle && socialGateUrl ? true : false
+      };
+      const updatedHistory = [newHistoryItem, ...history].slice(0, 10); // Keep last 10
       setHistory(updatedHistory);
       localStorage.setItem('supashort_history', JSON.stringify(updatedHistory));
       
       setLongUrl('');
       setCustomCode('');
+      setPassword('');
+      setIsPasswordEnabled(false);
+      setIsSocialGateEnabled(false);
+      setSocialGateTitle('');
+      setSocialGateUrl('');
+      setSocialGateIcon('link');
+      setSocialGateDescription('Complete the action below to unlock your link.');
+      setSocialGateButtonText('Verify & Continue');
     } catch (err) {
       console.error(err);
       setError('An unexpected error occurred. Check console for details.');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleUpdateLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingLink) return;
+
+    setIsUpdating(true);
+    try {
+      const domain = window.location.hostname;
+      const newPasswordValue = editingLink.enablePassword && editingLink.newPassword ? editingLink.newPassword : null;
+
+      // Only update password if we provided one (either new or clearing it)
+      // Wait, if enablePassword is true and newPassword is empty, we don't change the password.
+      // Actually, if we just want to keep the old password, we should not send it.
+      // But if enablePassword is false, we clear the password.
+      let updateData: any = {};
+      
+      if (!editingLink.enablePassword) {
+         updateData.password = null;
+      } else if (editingLink.newPassword) {
+         updateData.password = editingLink.newPassword;
+      }
+
+      updateData.social_gate_title = editingLink.enableSocialGate && editingLink.socialGateTitle && editingLink.socialGateUrl ? editingLink.socialGateTitle : null;
+      updateData.social_gate_url = editingLink.enableSocialGate && editingLink.socialGateTitle && editingLink.socialGateUrl ? editingLink.socialGateUrl : null;
+      updateData.social_gate_icon = editingLink.enableSocialGate && editingLink.socialGateTitle && editingLink.socialGateUrl ? editingLink.socialGateIcon : null;
+      updateData.social_gate_description = editingLink.enableSocialGate ? editingLink.socialGateDescription : null;
+      updateData.social_gate_button_text = editingLink.enableSocialGate ? editingLink.socialGateButtonText : null;
+
+      
+      const { error: updateError } = await supabase
+        .from('urls')
+        .update(updateData)
+        .eq('domain', domain)
+        .eq('short_code', editingLink.code)
+        .eq('device_id', getDeviceId());
+
+      if (updateError) {
+         console.error(updateError);
+         alert(updateError.message || "Failed to update link. Did you add the UPDATE policy in Supabase?");
+      } else {
+         // Update history to reflect password state
+         const updatedHistory = history.map((item: any) => {
+           if (item.code === editingLink.code) {
+              const keepOldPassword = editingLink.enablePassword && !editingLink.newPassword && item.hasPassword;
+              return { 
+                ...item, 
+                hasPassword: !!editingLink.newPassword || keepOldPassword,
+                hasSocialGate: !!(updateData.social_gate_title && updateData.social_gate_url)
+              };
+           }
+           return item;
+         });
+         setHistory(updatedHistory);
+         localStorage.setItem('supashort_history', JSON.stringify(updatedHistory));
+         setEditingLink(null);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("An unexpected error occurred.");
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -102,19 +288,62 @@ export default function Home() {
     }
   };
 
+  const handleDeleteLink = async (codeToDelete: string) => {
+    if (!window.confirm("Are you sure you want to delete this link?")) return;
+    
+    try {
+      const domain = window.location.hostname;
+      const { error: deleteError } = await supabase
+        .from('urls')
+        .delete()
+        .eq('domain', domain)
+        .eq('short_code', codeToDelete)
+        .eq('device_id', getDeviceId());
+
+      if (deleteError) {
+        console.error("Delete error:", deleteError);
+        alert(deleteError.message || "Failed to delete link.");
+        return;
+      }
+
+      const updatedHistory = history.filter((item: any) => item.code !== codeToDelete);
+      setHistory(updatedHistory);
+      localStorage.setItem('supashort_history', JSON.stringify(updatedHistory));
+    } catch (err) {
+      console.error(err);
+      alert("An unexpected error occurred while deleting.");
+    }
+  };
+
   const clearHistory = () => {
     setHistory([]);
     localStorage.removeItem('supashort_history');
   }
 
   const sqlSetupScript = `-- Run this in your Supabase SQL Editor
--- If you already have the urls table, you can DROP it first using: DROP TABLE public.urls;
+-- To add new features to an existing table:
+ALTER TABLE public.urls ADD COLUMN IF NOT EXISTS password text;
+ALTER TABLE public.urls ADD COLUMN IF NOT EXISTS social_gate_title text;
+ALTER TABLE public.urls ADD COLUMN IF NOT EXISTS social_gate_url text;
+ALTER TABLE public.urls ADD COLUMN IF NOT EXISTS social_gate_icon text;
+ALTER TABLE public.urls ADD COLUMN IF NOT EXISTS social_gate_description text;
+ALTER TABLE public.urls ADD COLUMN IF NOT EXISTS social_gate_button_text text;
+ALTER TABLE public.urls ADD COLUMN IF NOT EXISTS device_id text;
 
+-- If creating from scratch:
 create table public.urls (
   id uuid default gen_random_uuid() primary key,
   domain text not null,
   short_code text not null,
   long_url text not null,
+  password text,
+  social_gate_title text,
+  social_gate_url text,
+  social_gate_icon text,
+  social_gate_description text,
+  social_gate_button_text text,
+  device_id text,
+  clicks integer default 0,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   unique (domain, short_code)
 );
@@ -125,6 +354,8 @@ alter table public.urls enable row level security;
 -- Allow public access
 create policy "Allow public read access" on public.urls for select using (true);
 create policy "Allow public insert access" on public.urls for insert with check (true);
+create policy "Allow public update access" on public.urls for update using (true);
+create policy "Allow public delete access" on public.urls for delete using (true);
 `;
 
   const downloadIntegrationPrompt = () => {
@@ -231,6 +462,24 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
             <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
             <span className="text-[11px] text-emerald-400 font-medium uppercase tracking-wider">Supabase Connected</span>
           </div>
+          <button 
+            type="button"
+            className="text-xs font-medium px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-md transition-colors flex items-center gap-2"
+            onClick={async () => {
+              if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                  setDeferredPrompt(null);
+                }
+              } else {
+                alert("To install: Use your browser's 'Add to Home Screen' or 'Install App' option, which appears in the address bar or menu.");
+              }
+            }}
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Install App</span>
+          </button>
           <div className="w-8 h-8 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
              <svg className="w-5 h-5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
           </div>
@@ -254,15 +503,33 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
                 history.map((item: any, i: number) => (
                   <div key={i} className="p-3 rounded-lg bg-white/5 border border-white/5 hover:border-blue-500/50 transition-colors group">
                     <div className="flex justify-between items-start mb-1">
-                      <a href={item.shortUrl} target="_blank" rel="noreferrer" className="text-sm font-medium text-blue-400 hover:underline">
-                        /{item.code}
-                      </a>
-                      <button 
-                        onClick={() => copyToClipboard(item.shortUrl)} 
-                        className="text-[10px] text-zinc-500 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        Copy
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <a href={item.shortUrl} target="_blank" rel="noreferrer" className="text-sm font-medium text-blue-400 hover:underline">
+                          /{item.code}
+                        </a>
+                        {item.hasPassword && <Lock className="w-3 h-3 text-emerald-500" title="Password Protected" />}
+                        {item.hasSocialGate && <Link2 className="w-3 h-3 text-blue-500" title="Social Gate" />}
+                      </div>
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button 
+                          onClick={() => handleEditClick(item.code)} 
+                          className="p-1 rounded text-[10px] text-zinc-400 hover:text-white hover:bg-white/10 transition-colors uppercase font-medium tracking-wide flex items-center gap-1"
+                        >
+                          <Edit2 className="w-3 h-3" /> Edit
+                        </button>
+                        <button 
+                          onClick={() => copyToClipboard(item.shortUrl)} 
+                          className="p-1 rounded text-[10px] text-zinc-400 hover:text-white hover:bg-white/10 transition-colors uppercase font-medium tracking-wide flex items-center gap-1"
+                        >
+                          <Copy className="w-3 h-3" /> Copy
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteLink(item.code)} 
+                          className="p-1 rounded text-[10px] text-zinc-400 hover:text-red-400 hover:bg-red-400/10 transition-colors uppercase font-medium tracking-wide flex items-center gap-1"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
                     </div>
                     <p className="text-[11px] text-zinc-400 truncate" title={item.longUrl}>{item.longUrl}</p>
                   </div>
@@ -306,6 +573,123 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
                     className="w-full bg-[#0A0A0A] border border-white/10 rounded-lg py-4 px-5 text-zinc-200 focus:outline-none focus:border-blue-500/50 placeholder:text-zinc-700 transition-all font-sans"
                     required
                   />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+                      <Lock className="w-3 h-3"/> Password Protection
+                    </label>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={isPasswordEnabled}
+                      onClick={() => setIsPasswordEnabled(!isPasswordEnabled)}
+                      className={cn(
+                        "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/50",
+                        isPasswordEnabled ? "bg-emerald-500" : "bg-neutral-700"
+                      )}
+                    >
+                      <span className={cn(
+                        "inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm",
+                        isPasswordEnabled ? "translate-x-6" : "translate-x-1"
+                      )} />
+                    </button>
+                  </div>
+                  
+                  {isPasswordEnabled && (
+                    <div className="animate-in slide-in-from-top-2 fade-in duration-200">
+                      <input
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Enter password..."
+                        required={isPasswordEnabled}
+                        className="w-full bg-[#0A0A0A] rounded-lg py-4 px-5 text-zinc-200 focus:outline-none placeholder:text-zinc-700 transition-all font-sans border animate-rgb"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+                      <Link2 className="w-3 h-3"/> Social Gate (Sub2Unlock)
+                    </label>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={isSocialGateEnabled}
+                      onClick={() => setIsSocialGateEnabled(!isSocialGateEnabled)}
+                      className={cn(
+                        "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/50",
+                        isSocialGateEnabled ? "bg-emerald-500" : "bg-neutral-700"
+                      )}
+                    >
+                      <span className={cn(
+                        "inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm",
+                        isSocialGateEnabled ? "translate-x-6" : "translate-x-1"
+                      )} />
+                    </button>
+                  </div>
+                  
+                  {isSocialGateEnabled && (
+                    <div className="animate-in slide-in-from-top-2 fade-in duration-200 space-y-4">
+                      <div>
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 block">Choose Icon</label>
+                        <div className="flex flex-wrap gap-2">
+                          {SOCIAL_ICONS.map((item) => (
+                            <button
+                              key={item.id}
+                              type="button"
+                              onClick={() => setSocialGateIcon(item.id)}
+                              className={cn(
+                                "flex items-center gap-2 px-3 py-2 rounded-lg transition-all",
+                                socialGateIcon === item.id 
+                                  ? "bg-blue-500/10 text-blue-400 ring-1 ring-blue-500" 
+                                  : "bg-[#0F0F0F] border border-white/5 text-zinc-400 hover:bg-white/5 hover:text-zinc-200"
+                              )}
+                            >
+                              <SocialIcon id={item.id} className="w-6 h-6" />
+                              <span className="text-xs font-medium">{item.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <input
+                        type="text"
+                        value={socialGateTitle}
+                        onChange={(e) => setSocialGateTitle(e.target.value)}
+                        placeholder="e.g. Follow my WhatsApp Channel"
+                        required={isSocialGateEnabled}
+                        className="w-full bg-[#0A0A0A] border border-white/10 rounded-lg py-4 px-5 text-zinc-200 focus:outline-none focus:border-blue-500/50 placeholder:text-zinc-700 transition-all font-sans text-sm"
+                      />
+                      <input
+                        type="url"
+                        value={socialGateUrl}
+                        onChange={(e) => setSocialGateUrl(e.target.value)}
+                        placeholder="https://whatsapp.com/channel/..."
+                        required={isSocialGateEnabled}
+                        className="w-full bg-[#0A0A0A] border border-white/10 rounded-lg py-4 px-5 text-zinc-200 focus:outline-none focus:border-blue-500/50 placeholder:text-zinc-700 transition-all font-sans text-sm"
+                      />
+                      <input
+                        type="text"
+                        value={socialGateDescription}
+                        onChange={(e) => setSocialGateDescription(e.target.value)}
+                        placeholder="Step description (e.g. Complete the action below)"
+                        className="w-full bg-[#0A0A0A] border border-white/10 rounded-lg py-4 px-5 text-zinc-200 focus:outline-none focus:border-blue-500/50 placeholder:text-zinc-700 transition-all font-sans text-sm"
+                      />
+                      <input
+                        type="text"
+                        value={socialGateButtonText}
+                        onChange={(e) => setSocialGateButtonText(e.target.value)}
+                        placeholder="Button text (e.g. Verify & Continue)"
+                        required={isSocialGateEnabled}
+                        className="w-full bg-[#0A0A0A] border border-white/10 rounded-lg py-4 px-5 text-zinc-200 focus:outline-none focus:border-blue-500/50 placeholder:text-zinc-700 transition-all font-sans text-sm"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -421,6 +805,165 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
           <a href="https://github.com/supabase/supabase" target="_blank" rel="noreferrer" className="hover:text-zinc-400 transition-colors">Documentation</a>
         </div>
       </footer>
+
+      {/* Edit Password Modal */}
+      {editingLink && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto bg-[#0F0F0F] border border-white/10 rounded-2xl shadow-2xl p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-lg font-medium text-white">Manage Link</h3>
+              <button onClick={() => setEditingLink(null)} className="text-zinc-500 hover:text-white transition-colors">
+                <X className="w-5 h-5"/>
+              </button>
+            </div>
+            
+             <p className="text-sm text-zinc-400 mb-6 font-mono bg-white/5 p-2 rounded truncate block">
+               /{editingLink.code}
+             </p>
+
+             <form onSubmit={handleUpdateLink} className="space-y-6">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <label className="text-sm font-medium text-white flex items-center gap-2">
+                       <Lock className="w-4 h-4 text-zinc-400"/> Password Protection
+                    </label>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={editingLink.enablePassword}
+                      onClick={() => setEditingLink({ ...editingLink, enablePassword: !editingLink.enablePassword })}
+                      className={cn(
+                        "relative inline-flex h-7 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/50",
+                        editingLink.enablePassword ? "bg-emerald-500" : "bg-neutral-700"
+                      )}
+                    >
+                      <span className={cn(
+                        "inline-block h-5 w-5 transform rounded-full bg-white transition-transform shadow-sm",
+                        editingLink.enablePassword ? "translate-x-8" : "translate-x-1"
+                      )} />
+                    </button>
+                  </div>
+                  
+                  {editingLink.enablePassword && (
+                    <div className="animate-in slide-in-from-top-2 fade-in duration-200">
+                      <p className="text-xs text-zinc-500 mb-2">Set a new password to update</p>
+                      <input
+                        type="password"
+                        value={editingLink.newPassword}
+                        onChange={(e) => setEditingLink({ ...editingLink, newPassword: e.target.value })}
+                        placeholder="Enter new password..."
+                        className="w-full bg-[#0A0A0A] rounded-lg py-3 px-4 text-zinc-200 focus:outline-none placeholder:text-zinc-700 transition-all font-sans border animate-rgb"
+                      />
+                    </div>
+                  )}
+                  {!editingLink.enablePassword && (
+                     <p className="text-xs text-zinc-500 italic">Password will be removed, link will be public.</p>
+                  )}
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <label className="text-sm font-medium text-white flex items-center gap-2">
+                      <Link2 className="w-4 h-4 text-zinc-400"/> Social Gate (Sub2Unlock)
+                    </label>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={editingLink.enableSocialGate}
+                      onClick={() => setEditingLink({ ...editingLink, enableSocialGate: !editingLink.enableSocialGate })}
+                      className={cn(
+                        "relative inline-flex h-7 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/50",
+                        editingLink.enableSocialGate ? "bg-emerald-500" : "bg-neutral-700"
+                      )}
+                    >
+                      <span className={cn(
+                        "inline-block h-5 w-5 transform rounded-full bg-white transition-transform shadow-sm",
+                        editingLink.enableSocialGate ? "translate-x-8" : "translate-x-1"
+                      )} />
+                    </button>
+                  </div>
+                  
+                  {editingLink.enableSocialGate && (
+                    <div className="animate-in slide-in-from-top-2 fade-in duration-200 space-y-4">
+                      <div>
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 block">Choose Icon</label>
+                        <div className="flex flex-wrap gap-2">
+                          {SOCIAL_ICONS.map((item) => (
+                            <button
+                              key={item.id}
+                              type="button"
+                              onClick={() => setEditingLink({ ...editingLink, socialGateIcon: item.id })}
+                              className={cn(
+                                "flex items-center gap-2 px-3 py-2 rounded-lg transition-all",
+                                editingLink.socialGateIcon === item.id 
+                                  ? "bg-blue-500/10 text-blue-400 ring-1 ring-blue-500" 
+                                  : "bg-[#0F0F0F] border border-white/5 text-zinc-400 hover:bg-white/5 hover:text-zinc-200"
+                              )}
+                            >
+                              <SocialIcon id={item.id} className="w-6 h-6" />
+                              <span className="text-xs font-medium">{item.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <input
+                        type="text"
+                        value={editingLink.socialGateTitle}
+                        onChange={(e) => setEditingLink({ ...editingLink, socialGateTitle: e.target.value })}
+                        placeholder="e.g. Follow my WhatsApp Channel"
+                        required={editingLink.enableSocialGate}
+                        className="w-full bg-[#0A0A0A] border border-white/10 rounded-lg py-3 px-4 text-zinc-200 focus:outline-none focus:border-blue-500/50 placeholder:text-zinc-700 transition-all font-sans text-sm"
+                      />
+                      <input
+                        type="url"
+                        value={editingLink.socialGateUrl}
+                        onChange={(e) => setEditingLink({ ...editingLink, socialGateUrl: e.target.value })}
+                        placeholder="https://whatsapp.com/channel/..."
+                        required={editingLink.enableSocialGate}
+                        className="w-full bg-[#0A0A0A] border border-white/10 rounded-lg py-3 px-4 text-zinc-200 focus:outline-none focus:border-blue-500/50 placeholder:text-zinc-700 transition-all font-sans text-sm"
+                      />
+                      <input
+                        type="text"
+                        value={editingLink.socialGateDescription}
+                        onChange={(e) => setEditingLink({ ...editingLink, socialGateDescription: e.target.value })}
+                        placeholder="Step description (e.g. Complete the action below)"
+                        className="w-full bg-[#0A0A0A] border border-white/10 rounded-lg py-3 px-4 text-zinc-200 focus:outline-none focus:border-blue-500/50 placeholder:text-zinc-700 transition-all font-sans text-sm"
+                      />
+                      <input
+                        type="text"
+                        value={editingLink.socialGateButtonText}
+                        onChange={(e) => setEditingLink({ ...editingLink, socialGateButtonText: e.target.value })}
+                        placeholder="Button text (e.g. Verify & Continue)"
+                        required={editingLink.enableSocialGate}
+                        className="w-full bg-[#0A0A0A] border border-white/10 rounded-lg py-3 px-4 text-zinc-200 focus:outline-none focus:border-blue-500/50 placeholder:text-zinc-700 transition-all font-sans text-sm"
+                      />
+                    </div>
+                  )}
+                  {!editingLink.enableSocialGate && (
+                     <p className="text-xs text-zinc-500 italic mt-2">Social gate is disabled.</p>
+                  )}
+                </div>
+
+                <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+                  <button
+                    type="button"
+                    onClick={() => setEditingLink(null)}
+                    className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-400 hover:text-white transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isUpdating}
+                    className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg text-sm font-medium transition-all shadow-[0_0_15px_rgba(37,99,235,0.2)] disabled:opacity-50"
+                  >
+                    {isUpdating ? 'Saving...' : 'Save Changes'}
+                  </button>
+                </div>
+             </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
