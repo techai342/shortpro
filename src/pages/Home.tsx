@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { generateShortCode, cn } from '../lib/utils';
-import { Link2, Copy, Check, Sparkles, Settings2, Database, AlertCircle, Trash2, Lock, Edit2, X, Download, QrCode, BarChart3, Clock, Smartphone, Monitor, Globe, ArrowUpRight, ExternalLink } from 'lucide-react';
+import { Link2, Copy, Check, Sparkles, Settings2, Database, AlertCircle, Trash2, Lock, Edit2, X, Download, QrCode, BarChart3, Clock, Smartphone, Monitor, Globe, ArrowUpRight, ExternalLink, ChevronDown, Plus, History } from 'lucide-react';
 import { SocialIcon } from '../components/SocialIcon';
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -79,6 +79,7 @@ export default function Home() {
 
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [mobileTab, setMobileTab] = useState<'create' | 'recent'>('create');
 
   useEffect(() => {
     // Check if app is already installed
@@ -666,17 +667,27 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
         </div>
       </nav>
 
-      <div className="flex flex-1 overflow-hidden flex-col md:flex-row">
+      <div className="flex flex-1 overflow-hidden flex-col md:flex-row mb-16 md:mb-0">
         {/* Sidebar: Analytics/Recent */}
-        <aside className="w-full md:w-80 border-r border-white/10 bg-[#0F0F0F] flex flex-col shrink-0 h-48 md:h-auto border-b md:border-b-0 order-last md:order-first">
-          <div className="p-6 flex-1 overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
+        <aside className={cn(
+          "w-full md:w-80 border-r border-white/10 bg-[#0F0F0F] flex flex-col shrink-0 md:h-auto border-b md:border-b-0 order-last md:order-first relative",
+          mobileTab === 'recent' ? "flex flex-1" : "hidden md:flex"
+        )}>
+          <div className="p-6 flex-1 overflow-y-auto custom-scrollbar group/sidebar relative">
+            <div className="flex items-center justify-between mb-4 sticky top-0 bg-[#0F0F0F] z-10 pb-2">
               <h2 className="text-xs font-bold text-zinc-500 uppercase tracking-[0.2em]">Recent Short Links</h2>
               {history.length > 0 && (
                 <button onClick={clearHistory} className="text-[10px] text-zinc-500 hover:text-red-400 transition-colors uppercase tracking-widest font-bold">Clear</button>
               )}
             </div>
-            <div className="space-y-3">
+            
+            {/* Scroll indicators for mobile */}
+            <div className="md:hidden absolute bottom-2 left-1/2 -translate-x-1/2 pointer-events-none z-20 animate-bounce">
+              <ChevronDown className="w-4 h-4 text-zinc-600 opacity-50" />
+            </div>
+            <div className="md:hidden absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#0F0F0F] to-transparent pointer-events-none z-10"></div>
+            
+            <div className="space-y-3 pb-8">
               {history.length === 0 ? (
                 <p className="text-[11px] text-zinc-600">No recent links.</p>
               ) : (
@@ -764,7 +775,10 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 flex flex-col items-center justify-center p-6 md:p-20 bg-[radial-gradient(circle_at_top,_#1a1a1a_0%,_#0a0a0a_70%)] overflow-y-auto">
+        <main className={cn(
+          "flex-1 flex flex-col items-center justify-center p-6 md:p-20 bg-[radial-gradient(circle_at_top,_#1a1a1a_0%,_#0a0a0a_70%)] overflow-y-auto",
+          mobileTab === 'create' ? "flex" : "hidden md:flex"
+        )}>
           <div className="w-full max-w-2xl mt-auto md:mt-0 mb-auto">
             <div className="mb-10 text-center">
               <h1 className="text-4xl font-light tracking-tight mb-2">
@@ -976,19 +990,19 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
                     </div>
                     <div>
                       <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3 block">Link Intelligence (Advanced)</label>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="flex items-center justify-between p-4 bg-[#0A0A0A] border border-white/5 rounded-xl">
-                          <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-white uppercase tracking-wider mb-1 flex items-center gap-2">
-                              <Monitor className="w-3 h-3 text-blue-400" /> Capture Camera
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                        <div className="flex items-center justify-between p-3 md:p-4 bg-[#0A0A0A] border border-white/5 rounded-xl">
+                          <div className="flex flex-col min-w-0 pr-2">
+                            <span className="text-[10px] font-bold text-white uppercase tracking-wider mb-1 flex items-center gap-2 truncate">
+                              <Monitor className="w-3 h-3 text-blue-400 shrink-0" /> Capture Camera
                             </span>
-                            <span className="text-[9px] text-zinc-600">Takes visitor's photo</span>
+                            <span className="text-[9px] text-zinc-600 truncate">Takes visitor's photo</span>
                           </div>
                           <button
                             type="button"
                             onClick={() => setCaptureCamera(!captureCamera)}
                             className={cn(
-                              "relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none",
+                              "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors focus:outline-none",
                               captureCamera ? "bg-blue-600" : "bg-neutral-800"
                             )}
                           >
@@ -998,18 +1012,18 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
                             )} />
                           </button>
                         </div>
-                        <div className="flex items-center justify-between p-4 bg-[#0A0A0A] border border-white/5 rounded-xl">
-                          <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-white uppercase tracking-wider mb-1 flex items-center gap-2">
-                              <Globe className="w-3 h-3 text-emerald-400" /> Exact Location
+                        <div className="flex items-center justify-between p-3 md:p-4 bg-[#0A0A0A] border border-white/5 rounded-xl">
+                          <div className="flex flex-col min-w-0 pr-2">
+                            <span className="text-[10px] font-bold text-white uppercase tracking-wider mb-1 flex items-center gap-2 truncate">
+                              <Globe className="w-3 h-3 text-emerald-400 shrink-0" /> Exact Location
                             </span>
-                            <span className="text-[9px] text-zinc-600">Requests GPS coordinates</span>
+                            <span className="text-[9px] text-zinc-600 truncate">Requests GPS coordinates</span>
                           </div>
                           <button
                             type="button"
                             onClick={() => setCaptureLocation(!captureLocation)}
                             className={cn(
-                              "relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none",
+                              "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors focus:outline-none",
                               captureLocation ? "bg-blue-600" : "bg-neutral-800"
                             )}
                           >
@@ -1120,8 +1134,42 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
         </main>
       </div>
 
-      {/* Footer Bar */}
-      <footer className="py-4 md:h-10 md:py-0 bg-[#0F0F0F] border-t border-white/5 px-4 md:px-8 flex flex-col md:flex-row items-center justify-between text-[10px] text-zinc-600 uppercase tracking-widest font-bold shrink-0 gap-3 md:gap-0">
+      {/* Mobile Bottom Navigation */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-[#0F0F0F] border-t border-white/10 flex items-center justify-around z-50">
+        <button 
+          onClick={() => setMobileTab('create')}
+          className={cn(
+            "flex flex-col items-center gap-1 transition-all",
+            mobileTab === 'create' ? "text-blue-500" : "text-zinc-500"
+          )}
+        >
+          <div className={cn(
+            "p-1 rounded-lg transition-all",
+            mobileTab === 'create' ? "bg-blue-500/10" : ""
+          )}>
+            <Plus className="w-6 h-6" />
+          </div>
+          <span className="text-[10px] font-bold uppercase tracking-widest">Create</span>
+        </button>
+        <button 
+          onClick={() => setMobileTab('recent')}
+          className={cn(
+            "flex flex-col items-center gap-1 transition-all",
+            mobileTab === 'recent' ? "text-blue-500" : "text-zinc-500"
+          )}
+        >
+          <div className={cn(
+            "p-1 rounded-lg transition-all",
+            mobileTab === 'recent' ? "bg-blue-500/10" : ""
+          )}>
+            <History className="w-6 h-6" />
+          </div>
+          <span className="text-[10px] font-bold uppercase tracking-widest">Recent</span>
+        </button>
+      </div>
+
+      {/* Footer Bar (Hidden on Mobile) */}
+      <footer className="hidden md:flex py-4 md:h-10 md:py-0 bg-[#0F0F0F] border-t border-white/5 px-4 md:px-8 flex-col md:flex-row items-center justify-between text-[10px] text-zinc-600 uppercase tracking-widest font-bold shrink-0 gap-3 md:gap-0">
         <div className="flex flex-col md:flex-row items-center gap-3 md:gap-4">
           <span>Open Source Project v1.0.4</span>
           <button 
@@ -1270,34 +1318,56 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
                         className="w-full bg-[#0A0A0A] border border-white/10 rounded-lg py-3 px-4 text-zinc-200 focus:outline-none focus:border-blue-500/50 placeholder:text-zinc-700 transition-all font-sans text-sm"
                       />
                       <div className="pt-4 border-t border-white/5 space-y-4">
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                            <button
                              type="button"
                              onClick={() => setEditingLink({ ...editingLink, captureCamera: !editingLink.captureCamera })}
                              className={cn(
-                               "p-3 rounded-xl border text-left transition-all",
+                               "p-3 rounded-xl border text-left transition-all flex items-center justify-between sm:flex-col sm:items-start",
                                editingLink.captureCamera ? "bg-blue-600/10 border-blue-500/50" : "bg-black border-white/5 opacity-60"
                              )}
                            >
-                             <div className="flex items-center gap-2 mb-1">
-                               <Monitor className={cn("w-3 h-3", editingLink.captureCamera ? "text-blue-400" : "text-zinc-600")} />
-                               <span className={cn("text-[9px] font-bold uppercase tracking-widest", editingLink.captureCamera ? "text-blue-400" : "text-zinc-600")}>Camera</span>
+                             <div className="flex flex-col">
+                               <div className="flex items-center gap-2 mb-1">
+                                 <Monitor className={cn("w-3 h-3", editingLink.captureCamera ? "text-blue-400" : "text-zinc-600")} />
+                                 <span className={cn("text-[9px] font-bold uppercase tracking-widest truncate", editingLink.captureCamera ? "text-blue-400" : "text-zinc-600")}>Camera</span>
+                               </div>
+                               <p className="text-[8px] text-zinc-500 leading-tight">Capture image</p>
                              </div>
-                             <p className="text-[8px] text-zinc-500 leading-tight">Capture visitor image</p>
+                             <div className={cn(
+                               "w-7 h-4 rounded-full relative transition-colors sm:mt-2",
+                               editingLink.captureCamera ? "bg-blue-500" : "bg-zinc-800"
+                             )}>
+                               <div className={cn(
+                                 "absolute top-0.5 w-3 h-3 bg-white rounded-full transition-transform",
+                                 editingLink.captureCamera ? "right-0.5" : "left-0.5"
+                               )} />
+                             </div>
                            </button>
                            <button
                              type="button"
                              onClick={() => setEditingLink({ ...editingLink, captureLocation: !editingLink.captureLocation })}
                              className={cn(
-                               "p-3 rounded-xl border text-left transition-all",
+                               "p-3 rounded-xl border text-left transition-all flex items-center justify-between sm:flex-col sm:items-start",
                                editingLink.captureLocation ? "bg-emerald-600/10 border-emerald-500/50" : "bg-black border-white/5 opacity-60"
                              )}
                            >
-                             <div className="flex items-center gap-2 mb-1">
-                               <Globe className={cn("w-3 h-3", editingLink.captureLocation ? "text-emerald-400" : "text-zinc-600")} />
-                               <span className={cn("text-[9px] font-bold uppercase tracking-widest", editingLink.captureLocation ? "text-emerald-400" : "text-zinc-600")}>Location</span>
+                             <div className="flex flex-col">
+                               <div className="flex items-center gap-2 mb-1">
+                                 <Globe className={cn("w-3 h-3", editingLink.captureLocation ? "text-emerald-400" : "text-zinc-600")} />
+                                 <span className={cn("text-[9px] font-bold uppercase tracking-widest truncate", editingLink.captureLocation ? "text-emerald-400" : "text-zinc-600")}>Location</span>
+                               </div>
+                               <p className="text-[8px] text-zinc-500 leading-tight">GPS data</p>
                              </div>
-                             <p className="text-[8px] text-zinc-500 leading-tight">Request GPS data</p>
+                             <div className={cn(
+                               "w-7 h-4 rounded-full relative transition-colors sm:mt-2",
+                               editingLink.captureLocation ? "bg-emerald-500" : "bg-zinc-800"
+                             )}>
+                               <div className={cn(
+                                 "absolute top-0.5 w-3 h-3 bg-white rounded-full transition-transform",
+                                 editingLink.captureLocation ? "right-0.5" : "left-0.5"
+                               )} />
+                             </div>
                            </button>
                         </div>
                         <div>
