@@ -19,6 +19,15 @@ export default defineConfig(({mode}) => {
           theme_color: '#0A0A0A',
           background_color: '#050505',
           display: 'standalone',
+          share_target: {
+            action: '/',
+            method: 'GET',
+            params: {
+              title: 'title',
+              text: 'text',
+              url: 'url'
+            }
+          },
           icons: [
             {
               src: 'https://cdn-icons-png.flaticon.com/512/2885/2885417.png',
