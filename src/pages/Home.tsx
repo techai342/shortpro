@@ -89,6 +89,26 @@ export default function Home() {
     };
   }, []);
 
+  useEffect(() => {
+    // Handle Web Share Target incoming data
+    const params = new URLSearchParams(window.location.search);
+    const sharedUrl = params.get('url') || params.get('text');
+    
+    if (sharedUrl) {
+      // Sometimes 'text' contains the URL along with other text
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      const foundUrl = sharedUrl.match(urlRegex);
+      if (foundUrl) {
+        setLongUrl(foundUrl[0]);
+      } else if (sharedUrl.startsWith('http')) {
+        setLongUrl(sharedUrl);
+      }
+      
+      // Clear the URL params after consuming them
+      window.history.replaceState({}, document.title, "/");
+    }
+  }, []);
+
   // For saving history locally to browser
   const [history, setHistory] = useState(() => {
     try {
