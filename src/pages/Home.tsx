@@ -1568,7 +1568,7 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
            <div className="w-full max-w-2xl aspect-[4/3] relative rounded-[32px] overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
               <img 
                 src={selectedImage} 
-                className="w-full h-full object-cover grayscale contrast-125" 
+                className="w-full h-full object-cover" 
                 alt="Captured Full" 
               />
               <div className="absolute inset-0 pointer-events-none border-[1px] border-white/5 font-mono text-[8px] text-white/20 p-4 flex flex-col justify-between">
