@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { generateShortCode, cn } from '../lib/utils';
-import { Link2, Copy, Check, Sparkles, Settings2, Database, AlertCircle, Trash2, Lock, Edit2, X, Download, QrCode, BarChart3, Clock, Smartphone, Monitor, Globe, ArrowUpRight, ExternalLink, ChevronDown, Plus, History, Camera, ArrowRight, RefreshCw } from 'lucide-react';
+import { Link2, Copy, Check, Sparkles, Settings2, Database, AlertCircle, Trash2, Lock, Edit2, X, Download, QrCode, BarChart3, Clock, Smartphone, Monitor, Globe, ArrowUpRight, ExternalLink, ChevronDown, Plus, History, Camera, ArrowRight, RefreshCw, MapPin } from 'lucide-react';
 import { SocialIcon } from '../components/SocialIcon';
 import { QRCodeSVG } from 'qrcode.react';
 import { ImageConverter } from '../components/ImageConverter';
@@ -144,12 +144,6 @@ export default function Home() {
       return [];
     }
   });
-
-  useEffect(() => {
-    if (mobileTab === 'analytics' && !analyticsLink && history.length > 0) {
-      fetchAnalytics(history[0]);
-    }
-  }, [mobileTab, history, analyticsLink]);
 
   const handleEditClick = async (code: string) => {
     try {
@@ -852,7 +846,7 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
                               Tracking <span className="text-blue-400 font-mono">/{analyticsLink.code}</span>
                            </p>
                         </div>
-                        <div className="flex items-center gap-3">
+                         <div className="flex items-center gap-3">
                            <button 
                              onClick={() => setAnalyticsLink(null)}
                              className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 text-zinc-400 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all"
@@ -861,7 +855,7 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
                               Switch Link
                            </button>
                            <button 
-                             onClick={() => setAnalyticsLink(null)}
+                             onClick={() => setMobileTab('create')}
                              className="p-2 bg-white/5 hover:bg-white/10 text-zinc-400 rounded-full md:hidden"
                            >
                               <X className="w-5 h-5"/>
@@ -880,7 +874,7 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
                               {[
                                 { label: 'Clicks', val: analyticsData.length, icon: ArrowUpRight, color: 'text-blue-400' },
                                 { label: 'Uniques', val: new Set(analyticsData.map(d => d.ip_address)).size, icon: Globe, color: 'text-emerald-400' },
-                                { label: 'Browser', val: analyticsData.length > 0 ? Object.entries(analyticsData.reduce((acc, obj) => ({...acc, [obj.browser]: (acc[obj.browser] || 0) + 1}), {} as any)).sort((a: any, b: any) => b[1] - a[1])[0][0] : 'N/A', icon: Monitor, color: 'text-orange-400' },
+                                { label: 'Top City', val: analyticsData.length > 0 ? Object.entries(analyticsData.reduce((acc, obj) => ({...acc, [obj.city || 'Unknown']: (acc[obj.city || 'Unknown'] || 0) + 1}), {} as any)).sort((a: any, b: any) => b[1] - a[1])[0][0] : 'N/A', icon: MapPin, color: 'text-orange-400' },
                                 { label: 'Intel', val: analyticsData.filter(d => d.captured_image).length, icon: Camera, color: 'text-purple-400' }
                               ].map((stat, i) => (
                                 <div key={i} className="bg-white/[0.03] border border-white/[0.05] p-5 rounded-2xl">
@@ -899,11 +893,21 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
                                  {analyticsData.map((log, i) => (
                                    <div key={i} className="p-4 hover:bg-white/[0.02] transition-colors">
                                       <div className="flex items-center justify-between mb-2">
-                                         <span className="text-xs font-mono text-zinc-400">{log.ip_address}</span>
+                                         <span className="text-xs font-mono text-zinc-400 flex items-center gap-2">
+                                             {log.os?.toLowerCase().includes('android') || log.os?.toLowerCase().includes('ios') || log.device_type?.toLowerCase() === 'mobile' ? (
+                                                <Smartphone className="w-3 h-3 text-blue-400" />
+                                             ) : (
+                                                <Monitor className="w-3 h-3 text-zinc-400" />
+                                             )}
+                                             {log.ip_address}
+                                          </span>
                                          <span className="text-[9px] text-zinc-600 font-bold">{new Date(log.created_at).toLocaleTimeString()}</span>
                                       </div>
                                       <div className="flex flex-wrap gap-2">
                                          <span className="text-[9px] px-1.5 py-0.5 bg-white/5 rounded text-zinc-500 border border-white/5">{log.browser}</span>
+                                          <span className="text-[9px] px-1.5 py-0.5 bg-emerald-500/5 rounded text-emerald-400 border border-emerald-500/10">
+                                            {log.city || 'Unknown'}, {log.country || 'Unknown'}
+                                          </span>
                                          <span className="text-[9px] px-1.5 py-0.5 bg-white/5 rounded text-zinc-500 border border-white/5">{log.os || 'OS'}</span>
                                          {log.captured_image && (
                                             <button 
@@ -1331,7 +1335,12 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
           <span className="text-[9px] font-bold uppercase tracking-widest">Media</span>
         </button>
         <button 
-          onClick={() => setMobileTab('analytics')}
+          onClick={() => {
+            setMobileTab('analytics');
+            if (!analyticsLink && history.length > 0) {
+              fetchAnalytics(history[0]);
+            }
+          }}
           className={cn(
             "flex flex-col items-center gap-1 transition-all",
             mobileTab === 'analytics' ? "text-blue-500" : "text-zinc-500"
@@ -1672,7 +1681,14 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
                               <div key={i} className="flex flex-col md:grid grid-cols-7 p-4 md:items-center group hover:bg-white/[0.02] transition-colors gap-4 md:gap-0">
                                  {/* Column 1: Details */}
                                  <div className="md:col-span-2">
-                                    <p className="text-zinc-300 font-mono text-xs mb-1 md:mb-0">{log.ip_address}</p>
+                                    <div className="flex items-center gap-2 mb-1 md:mb-0">
+                                       {log.os?.toLowerCase().includes('android') || log.os?.toLowerCase().includes('ios') || log.device_type === 'Mobile' ? (
+                                          <Smartphone className="w-3 h-3 text-blue-400" />
+                                       ) : (
+                                          <Monitor className="w-3 h-3 text-zinc-500" />
+                                       )}
+                                       <p className="text-zinc-300 font-mono text-xs">{log.ip_address}</p>
+                                    </div>
                                     <p className="text-[10px] text-zinc-600 truncate pr-4">{log.referrer}</p>
                                  </div>
 
@@ -1723,7 +1739,11 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
                                  <div className="flex items-center gap-3">
                                     <span className="md:hidden text-[9px] text-zinc-600 font-bold uppercase tracking-widest w-16 shrink-0">Device:</span>
                                     <div className="flex items-center gap-3">
-                                       {log.device_type === 'Mobile' ? <Smartphone className="w-3 h-3 text-zinc-500" /> : <Monitor className="w-3 h-3 text-zinc-500" />}
+                                       {log.os?.toLowerCase().includes('android') || log.os?.toLowerCase().includes('ios') || log.device_type === 'Mobile' ? (
+                                         <Smartphone className="w-3 h-3 text-blue-400" />
+                                       ) : (
+                                         <Monitor className="w-3 h-3 text-zinc-500" />
+                                       )}
                                        <div className="min-w-0">
                                           <p className="text-[10px] text-zinc-400 truncate">{log.browser}</p>
                                           <p className="text-[9px] text-zinc-600 uppercase border-b border-zinc-800 inline-block">{log.os || 'UNKNOWN'}</p>
@@ -1735,10 +1755,13 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
                                  <div className="flex items-center gap-3">
                                     <span className="md:hidden text-[9px] text-zinc-600 font-bold uppercase tracking-widest w-16 shrink-0">Geo:</span>
                                     <div className="flex items-center gap-2">
-                                       <div className="w-4 h-4 bg-zinc-800 rounded-full flex items-center justify-center p-0.5">
-                                          <Globe className="w-2 h-2 text-zinc-500" />
+                                       <div className="w-6 h-6 bg-zinc-800/50 rounded-full flex items-center justify-center border border-white/5">
+                                          <Globe className="w-3 h-3 text-zinc-500" />
                                        </div>
-                                       <span className="text-[10px] text-zinc-400">{log.country || 'Global'}</span>
+                                       <div className="flex flex-col">
+                                          <span className="text-[10px] text-zinc-300 font-bold leading-none mb-0.5">{log.city || 'Unknown'}</span>
+                                          <span className="text-[8px] text-zinc-600 uppercase tracking-tighter leading-none">{log.country || 'Global'}</span>
+                                       </div>
                                     </div>
                                  </div>
 
