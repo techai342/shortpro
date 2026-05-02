@@ -604,7 +604,7 @@ export default function App() {
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full flex flex-col gap-2 p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all group relative overflow-hidden block cursor-pointer"
+                  className="w-full flex flex-col gap-3 p-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all group relative overflow-hidden block cursor-pointer"
                 >
                   <div className="absolute inset-0 z-20"></div>
                   <div className="flex items-center justify-between relative z-10 pointer-events-none">
@@ -635,7 +635,7 @@ export default function App() {
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full flex flex-col gap-2 p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all group relative overflow-hidden block cursor-pointer"
+                  className="w-full flex flex-col gap-3 p-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all group relative overflow-hidden block cursor-pointer"
                 >
                   <div className="absolute inset-0 z-20"></div>
                   <div className="flex items-center justify-between relative z-10 pointer-events-none">
@@ -669,7 +669,7 @@ export default function App() {
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full flex flex-col gap-2 p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all group relative overflow-hidden block cursor-pointer"
+                  className="w-full flex flex-col gap-3 p-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all group relative overflow-hidden block cursor-pointer"
                 >
                   <div className="absolute inset-0 z-20"></div>
                   <div className="flex items-center justify-between relative z-10 pointer-events-none">
@@ -700,7 +700,7 @@ export default function App() {
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full flex flex-col gap-2 p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all group relative overflow-hidden block cursor-pointer"
+                  className="w-full flex flex-col gap-3 p-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all group relative overflow-hidden block cursor-pointer"
                 >
                   <div className="absolute inset-0 z-20"></div>
                   <div className="flex items-center justify-between relative z-10 pointer-events-none">
@@ -723,7 +723,7 @@ export default function App() {
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full flex flex-col gap-2 p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all group relative overflow-hidden block cursor-pointer"
+                  className="w-full flex flex-col gap-3 p-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all group relative overflow-hidden block cursor-pointer"
                 >
                   <div className="absolute inset-0 z-20"></div>
                   <div className="flex items-center justify-between relative z-10 pointer-events-none">
