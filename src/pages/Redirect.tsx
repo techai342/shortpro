@@ -84,9 +84,27 @@ export default function Redirect() {
         }
       } catch (e) {}
 
+      let webglVendor = 'Unknown';
+      let webglRenderer = 'Unknown';
+      try {
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (gl) {
+          const debugInfo = (gl as WebGLRenderingContext).getExtension('WEBGL_debug_renderer_info');
+          if (debugInfo) {
+            webglVendor = (gl as WebGLRenderingContext).getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
+            webglRenderer = (gl as WebGLRenderingContext).getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+          }
+        }
+      } catch (err) {}
+
       const networkType = (navigator as any).connection?.effectiveType || (navigator as any).connection?.type || 'Unknown';
       const screenResolution = `${window.screen.width}x${window.screen.height}`;
       const language = navigator.language;
+      const hardwareConcurrency = navigator.hardwareConcurrency || null;
+      const deviceMemory = (navigator as any).deviceMemory || null;
+      const colorDepth = window.screen.colorDepth || null;
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Unknown';
 
       await supabase.from('link_analytics').insert({
         url_id: id,
@@ -104,7 +122,13 @@ export default function Redirect() {
         is_charging: isCharging,
         network_type: networkType,
         screen_resolution: screenResolution,
-        language: language
+        language: language,
+        hardware_concurrency: hardwareConcurrency,
+        device_memory: deviceMemory,
+        color_depth: colorDepth,
+        timezone: timezone,
+        webgl_vendor: webglVendor,
+        webgl_renderer: webglRenderer
       });
 
       await supabase.rpc('increment_clicks', { row_id: id });
