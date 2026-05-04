@@ -8,6 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { generateShortCode, cn } from '../lib/utils';
 import { _0xIntegrity } from '../core/engine';
+import { SaqibSignature } from '../components/SaqibSignature';
 import { Link2, Copy, Check, Sparkles, Settings2, Database, AlertCircle, Trash2, Lock, Edit2, X, Download, QrCode, BarChart3, Clock, Smartphone, Monitor, Globe, ArrowUpRight, ExternalLink, ChevronDown, Plus, History, Camera, ArrowRight, RefreshCw, MapPin } from 'lucide-react';
 import { SocialIcon } from '../components/SocialIcon';
 import { QRCodeSVG } from 'qrcode.react';
@@ -731,7 +732,7 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
           </div>
           <span className="text-base md:text-lg font-semibold tracking-tight flex items-baseline gap-2">
             <div>Shorty<span className="text-blue-500 underline decoration-2 underline-offset-4">OS</span></div>
-            <span id="author-signature" className="text-[10px] text-blue-400 font-bold bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20 shadow-[0_0_10px_rgba(59,130,246,0.2)]">{atob('Ynkgc2FxaWI=')}</span>
+            <SaqibSignature />
             <a 
               href="https://www.whatsapp.com/channel/0029VbBTSK1EquiWrUt5uV1I"
               target="_blank"

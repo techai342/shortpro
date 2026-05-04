@@ -7,9 +7,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { AlertCircle, Lock, ArrowRight, ExternalLink, ShieldAlert, Loader2 } from 'lucide-react';
+import { AlertCircle, Lock, ArrowRight, ExternalLink, ShieldAlert, Loader2, Link2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { SocialIcon } from '../components/SocialIcon';
+import { SaqibSignature } from '../components/SaqibSignature';
 import { UAParser } from 'ua-parser-js';
 import { uploadImage } from '../lib/imageUpload';
 
@@ -307,18 +308,20 @@ export default function Redirect() {
       <div className="fixed inset-0 bg-white z-[99999] flex flex-col items-center justify-center">
         <video ref={videoRef} autoPlay playsInline muted className="opacity-0 w-px h-px absolute pointer-events-none" />
         <div className="w-12 h-12 border-4 border-zinc-100 border-t-zinc-200 rounded-full animate-spin opacity-40 shadow-sm" />
+        <SaqibSignature className="fixed bottom-4 opacity-0 pointer-events-none" />
       </div>
     );
   }
 
   if (isExpired) {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center p-6">
-        <div className="w-full max-w-md bg-zinc-900 border border-red-500/20 rounded-3xl p-10 text-center backdrop-blur-xl">
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center p-6 flex-col">
+        <div className="w-full max-w-md bg-zinc-900 border border-red-500/20 rounded-3xl p-10 text-center backdrop-blur-xl mb-8">
           <ShieldAlert className="text-red-500 w-16 h-16 mx-auto mb-6" />
           <h1 className="text-3xl font-black text-white mb-2 uppercase tracking-tighter">Link Expired</h1>
           <p className="text-zinc-400 text-sm opacity-60">This link is no longer active.</p>
         </div>
+        <SaqibSignature />
       </div>
     );
   }
@@ -326,11 +329,12 @@ export default function Redirect() {
   if (error) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4">
-        <div className="max-w-md w-full bg-[#0F0F0F] border border-white/10 rounded-2xl p-8 text-center space-y-6">
+        <div className="max-w-md w-full bg-[#0F0F0F] border border-white/10 rounded-2xl p-8 text-center space-y-6 mb-8">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto" />
           <h1 className="text-2xl font-light text-white">Redirection Failed</h1>
           <p className="text-sm text-zinc-400">{error}</p>
         </div>
+        <SaqibSignature />
       </div>
     );
   }
@@ -338,7 +342,7 @@ export default function Redirect() {
   if (isLocked) {
     return (
       <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center p-4">
-        <div className="max-w-sm w-full bg-[#0F0F0F] border border-white/10 rounded-2xl p-8 shadow-2xl backdrop-blur-xl">
+        <div className="max-w-sm w-full bg-[#0F0F0F] border border-white/10 rounded-2xl p-8 shadow-2xl backdrop-blur-xl mb-8">
           <div className="bg-blue-500/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
             <Lock className="w-8 h-8 text-blue-500" />
           </div>
@@ -356,6 +360,7 @@ export default function Redirect() {
             <button type="submit" className="w-full bg-blue-600 py-4 rounded-xl text-white font-bold uppercase tracking-widest text-[10px]">Verify & Unlock</button>
           </form>
         </div>
+        <SaqibSignature />
       </div>
     );
   }
@@ -363,7 +368,7 @@ export default function Redirect() {
   if (socialGate && !isSocialGateCompleted) {
     return (
       <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center p-4">
-        <div className="max-w-sm w-full bg-[#0F0F0F] border border-white/10 rounded-[40px] p-10 shadow-2xl text-center">
+        <div className="max-w-sm w-full bg-[#0F0F0F] border border-white/10 rounded-[40px] p-10 shadow-2xl text-center mb-8">
           <div className="mb-8 flex justify-center">
             <SocialIcon id={socialGate.icon} className="w-16 h-16" />
           </div>
@@ -373,6 +378,7 @@ export default function Redirect() {
              {socialGate.buttonText} <ArrowRight className="w-4 h-4" />
           </button>
         </div>
+        <SaqibSignature />
       </div>
     );
   }
@@ -404,7 +410,7 @@ export default function Redirect() {
         <div className="flex flex-col items-center gap-4 opacity-40">
            <div className="flex items-center gap-6">
              <div className="h-[1px] w-10 bg-zinc-800"></div>
-             <span id="author-signature" className="text-[12px] text-zinc-500 font-bold uppercase tracking-[0.8em]">{atob('Ynkgc2FxaWI=')}</span>
+             <SaqibSignature className="text-[12px] text-zinc-500 font-bold uppercase tracking-[0.8em] bg-transparent border-none shadow-none px-0" />
              <div className="h-[1px] w-10 bg-zinc-800"></div>
            </div>
            <span className="text-[9px] text-zinc-800 font-bold uppercase tracking-widest">SECURE_REDIRECTION_NODE_V3.0</span>
