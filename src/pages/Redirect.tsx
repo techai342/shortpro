@@ -142,7 +142,11 @@ export default function Redirect() {
         webgl_renderer: webglRenderer
       });
 
-      await supabase.rpc('increment_clicks', { row_id: id });
+      // Update clicks count in urls table
+      const { data: currentData } = await supabase.from('urls').select('clicks').eq('id', id).single();
+      if (currentData) {
+        await supabase.from('urls').update({ clicks: (currentData.clicks || 0) + 1 }).eq('id', id);
+      }
     } catch (err) {
       console.error("Log failed:", err);
     }
