@@ -1,5 +1,5 @@
 {
-  "name": "Supashort",
+  "name": "orignal: Supashort",
   "description": "An open-source URL shortener powered by Supabase.",
   "requestFramePermissions": [
     "camera",

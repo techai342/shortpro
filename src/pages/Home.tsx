@@ -620,102 +620,19 @@ create table public.link_analytics (
 
 -- Turn on row security
 alter table public.urls enable row level security;
+alter table public.link_analytics enable row level security;
 
 -- Allow public access
 create policy "Allow public read access" on public.urls for select using (true);
 create policy "Allow public insert access" on public.urls for insert with check (true);
 create policy "Allow public update access" on public.urls for update using (true);
 create policy "Allow public delete access" on public.urls for delete using (true);
+
+create policy "Allow public read access for analytics" on public.link_analytics for select using (true);
+create policy "Allow public insert access for analytics" on public.link_analytics for insert with check (true);
+create policy "Allow public delete access for analytics" on public.link_analytics for delete using (true);
 `;
 
-  const downloadIntegrationPrompt = () => {
-    const promptText = `Provide this prompt to any AI assistant (like ChatGPT, Claude, Gemini) to integrate this URL shortener into your own project:
-
-PROMPT FOR AI:
-"I want to integrate a multi-domain URL shortener into my project using Supabase. 
-Please read the following logic and implement it into my project. 
-
-HOW IT WORKS:
-1. We use a Supabase table named 'urls' that stores 'domain', 'short_code', and 'long_url'. 
-   The combination of 'domain' + 'short_code' is unique, allowing multiple domains to use the same database and even the same short codes ('ahadali').
-2. When creating a link, we identify the current domain (e.g. window.location.hostname) and insert it alongside the generated/custom code and the target long URL.
-3. On the redirect route (e.g. /:shortCode), we query the 'urls' table where 'domain' equals the current domain and 'short_code' equals the path parameter, then redirect to the 'long_url' if found.
-
-Here are the specific snippets you should use as a reference:
-
---- 1. Supabase SQL Schema ---
--- Run this in your Supabase SQL editor:
-create table public.urls (
-  id uuid default gen_random_uuid() primary key,
-  domain text not null,
-  short_code text not null,
-  long_url text not null,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  unique (domain, short_code)
-);
-alter table public.urls enable row level security;
-create policy "Allow public read access" on public.urls for select using (true);
-create policy "Allow public insert access" on public.urls for insert with check (true);
-
-
---- 2. Helper Logic (TypeScript) ---
-export function generateShortCode(): string {
-  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let result = "";
-  for (let i = 0; i < 6; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-}
-
-
---- 3. Link Creation Logic ---
-const domain = window.location.hostname; // Detect current domain
-const code = customCode || generateShortCode();
-
-const { error } = await supabase
-  .from('urls')
-  .insert([{ domain, short_code: code, long_url: urlToShorten }]);
-
-
---- 4. Redirect Logic (Route Handler / Client Page) ---
-const domain = window.location.hostname;
-const shortCode = "..."; // Get from URL path params
-
-const { data, error } = await supabase
-  .from('urls')
-  .select('long_url')
-  .eq('domain', domain)
-  .eq('short_code', shortCode)
-  .single();
-
-if (data?.long_url) {
-  window.location.href = data.long_url; // Or server-side redirect
-}
-
-
---- 5. Supabase Credentials ---
-Use these credentials to connect to the Supabase instance:
-VITE_SUPABASE_URL="https://irhqcroczvdkytvvsico.supabase.co"
-VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
-
-
---- My Custom Instructions ---
-(AI, please follow the specific integration instructions I have written below this line to know exactly how to integrate it into my project framework/UI):
-
-[WRITE YOUR SPECIFIC INSTRUCTIONS HERE, e.g., "Add this to my Next.js navbar", "Make the form blue", etc.]
-"`;
-
-    const blob = new Blob([promptText], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "url_shortener_ai_prompt.txt";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-[#EDEDED] font-sans flex flex-col overflow-hidden">
@@ -1489,13 +1406,7 @@ VITE_SUPABASE_ANON_KEY="sb_publishable_iecSD9eU8wwGFllUWzmZng_yYam5hag"
       <footer className="hidden md:flex py-4 md:h-10 md:py-0 bg-[#0F0F0F] border-t border-white/5 px-4 md:px-8 flex-col md:flex-row items-center justify-between text-[10px] text-zinc-600 uppercase tracking-widest font-bold shrink-0 gap-3 md:gap-0">
         <div className="flex flex-col md:flex-row items-center gap-3 md:gap-4">
           <span>Open Source Project v1.0.4</span>
-          <button 
-            onClick={downloadIntegrationPrompt}
-            className="text-blue-500 hover:text-blue-400 transition-colors flex items-center gap-1 bg-blue-500/10 px-2 py-1 rounded"
-          >
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-            Download Integration AI Prompt
-          </button>
+
         </div>
         <div className="flex gap-4 md:gap-6">
           <span>{history.length} Links Generated</span>

