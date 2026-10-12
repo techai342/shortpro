@@ -1,500 +1,223 @@
-# 🚀 SupaShort - Advanced URL Intelligence & Analytics
+# ⚡ SupaShort (ShortyOS)
 
-SupaShort is a high-performance, secure URL shortener and intelligence platform built with React, Tailwind CSS, and Supabase. It provides deep analytics, device tracking, and security features out of the box.
+<div align="center">
 
-## ✨ Features
+![SupaShort Banner](https://ik.imagekit.io/19imy4f1u/lite_1777561225399_yUcjK1Jzn.jpeg)
 
-- **Link Shortener:** Create easy-to-remember short links with custom aliases.
-- **Deep Analytics:** Track IP addresses, location (City/Country), device types, and operating systems.
-- **Hardware Intelligence:** Capture hardware concurrency (CPU cores), device memory (RAM), and GPU details.
-- **Security Engineering:** Built-in protection against unauthorized source code modifications and automated AI analysis.
-- **Real-time Tracking:** Auto-refreshing analytics dashboard to monitor clicks as they happen.
-- **Interactive UI:** A dark, sleek, and high-contrast interface designed for power users.
+**Next-Generation URL Management, Interactive Social Gates & Real-Time Intelligence Platform**
 
-## 🛡️ Security
+[![React](https://img.shields.io/badge/React-19-blue.svg)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6.svg)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-6.2-646CFF.svg)](https://vitejs.dev/)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.0-38B2AC.svg)](https://tailwindcss.com/)
+[![Supabase](https://img.shields.io/badge/Database-Supabase-3ECF8E.svg)](https://supabase.com/)
+[![PWA](https://img.shields.io/badge/PWA-Ready-orange.svg)](https://web.dev/progressive-web-apps/)
 
-This project contains proprietary security mechanisms to prevent unauthorized distribution and modification. The core engine monitors the integrity of the application in real-time.
-
----
-
-## 🛠️ Tech Stack
-
-- **Frontend:** React + Vite
-- **Styling:** Tailwind CSS
-- **Database:** Supabase (PostgreSQL)
-- **Icons:** Lucide React
-- **Animations:** Framer Motion
+</div>
 
 ---
 
-### 💎 Powered by Saqib
+## 📖 Overview
 
-*Crafted with precision and a focus on high-level security engineering.*
+**SupaShort** is a full-featured, privacy-focused link management system built on modern web technologies. Beyond traditional URL shortening, it provides custom security passcodes, interactive social gates (require visitors to join/subscribe before redirecting), hardware-level visitor analytics, dynamic loading animations, and an integrated image conversion suite.
 
-This is placeholder documentation line number 34 to satisfy the 500-line requirement.
-This is placeholder documentation line number 35 to satisfy the 500-line requirement.
-This is placeholder documentation line number 36 to satisfy the 500-line requirement.
-This is placeholder documentation line number 37 to satisfy the 500-line requirement.
-This is placeholder documentation line number 38 to satisfy the 500-line requirement.
-This is placeholder documentation line number 39 to satisfy the 500-line requirement.
-This is placeholder documentation line number 40 to satisfy the 500-line requirement.
-This is placeholder documentation line number 41 to satisfy the 500-line requirement.
-This is placeholder documentation line number 42 to satisfy the 500-line requirement.
-This is placeholder documentation line number 43 to satisfy the 500-line requirement.
-This is placeholder documentation line number 44 to satisfy the 500-line requirement.
-This is placeholder documentation line number 45 to satisfy the 500-line requirement.
-This is placeholder documentation line number 46 to satisfy the 500-line requirement.
-This is placeholder documentation line number 47 to satisfy the 500-line requirement.
-This is placeholder documentation line number 48 to satisfy the 500-line requirement.
-This is placeholder documentation line number 49 to satisfy the 500-line requirement.
-This is placeholder documentation line number 50 to satisfy the 500-line requirement.
-This is placeholder documentation line number 51 to satisfy the 500-line requirement.
-This is placeholder documentation line number 52 to satisfy the 500-line requirement.
-This is placeholder documentation line number 53 to satisfy the 500-line requirement.
-This is placeholder documentation line number 54 to satisfy the 500-line requirement.
-This is placeholder documentation line number 55 to satisfy the 500-line requirement.
-This is placeholder documentation line number 56 to satisfy the 500-line requirement.
-This is placeholder documentation line number 57 to satisfy the 500-line requirement.
-This is placeholder documentation line number 58 to satisfy the 500-line requirement.
-This is placeholder documentation line number 59 to satisfy the 500-line requirement.
-This is placeholder documentation line number 60 to satisfy the 500-line requirement.
-This is placeholder documentation line number 61 to satisfy the 500-line requirement.
-This is placeholder documentation line number 62 to satisfy the 500-line requirement.
-This is placeholder documentation line number 63 to satisfy the 500-line requirement.
-This is placeholder documentation line number 64 to satisfy the 500-line requirement.
-This is placeholder documentation line number 65 to satisfy the 500-line requirement.
-This is placeholder documentation line number 66 to satisfy the 500-line requirement.
-This is placeholder documentation line number 67 to satisfy the 500-line requirement.
-This is placeholder documentation line number 68 to satisfy the 500-line requirement.
-This is placeholder documentation line number 69 to satisfy the 500-line requirement.
-This is placeholder documentation line number 70 to satisfy the 500-line requirement.
-This is placeholder documentation line number 71 to satisfy the 500-line requirement.
-This is placeholder documentation line number 72 to satisfy the 500-line requirement.
-This is placeholder documentation line number 73 to satisfy the 500-line requirement.
-This is placeholder documentation line number 74 to satisfy the 500-line requirement.
-This is placeholder documentation line number 75 to satisfy the 500-line requirement.
-This is placeholder documentation line number 76 to satisfy the 500-line requirement.
-This is placeholder documentation line number 77 to satisfy the 500-line requirement.
-This is placeholder documentation line number 78 to satisfy the 500-line requirement.
-This is placeholder documentation line number 79 to satisfy the 500-line requirement.
-This is placeholder documentation line number 80 to satisfy the 500-line requirement.
-This is placeholder documentation line number 81 to satisfy the 500-line requirement.
-This is placeholder documentation line number 82 to satisfy the 500-line requirement.
-This is placeholder documentation line number 83 to satisfy the 500-line requirement.
-This is placeholder documentation line number 84 to satisfy the 500-line requirement.
-This is placeholder documentation line number 85 to satisfy the 500-line requirement.
-This is placeholder documentation line number 86 to satisfy the 500-line requirement.
-This is placeholder documentation line number 87 to satisfy the 500-line requirement.
-This is placeholder documentation line number 88 to satisfy the 500-line requirement.
-This is placeholder documentation line number 89 to satisfy the 500-line requirement.
-This is placeholder documentation line number 90 to satisfy the 500-line requirement.
-This is placeholder documentation line number 91 to satisfy the 500-line requirement.
-This is placeholder documentation line number 92 to satisfy the 500-line requirement.
-This is placeholder documentation line number 93 to satisfy the 500-line requirement.
-This is placeholder documentation line number 94 to satisfy the 500-line requirement.
-This is placeholder documentation line number 95 to satisfy the 500-line requirement.
-This is placeholder documentation line number 96 to satisfy the 500-line requirement.
-This is placeholder documentation line number 97 to satisfy the 500-line requirement.
-This is placeholder documentation line number 98 to satisfy the 500-line requirement.
-This is placeholder documentation line number 99 to satisfy the 500-line requirement.
-This is placeholder documentation line number 100 to satisfy the 500-line requirement.
-This is placeholder documentation line number 101 to satisfy the 500-line requirement.
-This is placeholder documentation line number 102 to satisfy the 500-line requirement.
-This is placeholder documentation line number 103 to satisfy the 500-line requirement.
-This is placeholder documentation line number 104 to satisfy the 500-line requirement.
-This is placeholder documentation line number 105 to satisfy the 500-line requirement.
-This is placeholder documentation line number 106 to satisfy the 500-line requirement.
-This is placeholder documentation line number 107 to satisfy the 500-line requirement.
-This is placeholder documentation line number 108 to satisfy the 500-line requirement.
-This is placeholder documentation line number 109 to satisfy the 500-line requirement.
-This is placeholder documentation line number 110 to satisfy the 500-line requirement.
-This is placeholder documentation line number 111 to satisfy the 500-line requirement.
-This is placeholder documentation line number 112 to satisfy the 500-line requirement.
-This is placeholder documentation line number 113 to satisfy the 500-line requirement.
-This is placeholder documentation line number 114 to satisfy the 500-line requirement.
-This is placeholder documentation line number 115 to satisfy the 500-line requirement.
-This is placeholder documentation line number 116 to satisfy the 500-line requirement.
-This is placeholder documentation line number 117 to satisfy the 500-line requirement.
-This is placeholder documentation line number 118 to satisfy the 500-line requirement.
-This is placeholder documentation line number 119 to satisfy the 500-line requirement.
-This is placeholder documentation line number 120 to satisfy the 500-line requirement.
-This is placeholder documentation line number 121 to satisfy the 500-line requirement.
-This is placeholder documentation line number 122 to satisfy the 500-line requirement.
-This is placeholder documentation line number 123 to satisfy the 500-line requirement.
-This is placeholder documentation line number 124 to satisfy the 500-line requirement.
-This is placeholder documentation line number 125 to satisfy the 500-line requirement.
-This is placeholder documentation line number 126 to satisfy the 500-line requirement.
-This is placeholder documentation line number 127 to satisfy the 500-line requirement.
-This is placeholder documentation line number 128 to satisfy the 500-line requirement.
-This is placeholder documentation line number 129 to satisfy the 500-line requirement.
-This is placeholder documentation line number 130 to satisfy the 500-line requirement.
-This is placeholder documentation line number 131 to satisfy the 500-line requirement.
-This is placeholder documentation line number 132 to satisfy the 500-line requirement.
-This is placeholder documentation line number 133 to satisfy the 500-line requirement.
-This is placeholder documentation line number 134 to satisfy the 500-line requirement.
-This is placeholder documentation line number 135 to satisfy the 500-line requirement.
-This is placeholder documentation line number 136 to satisfy the 500-line requirement.
-This is placeholder documentation line number 137 to satisfy the 500-line requirement.
-This is placeholder documentation line number 138 to satisfy the 500-line requirement.
-This is placeholder documentation line number 139 to satisfy the 500-line requirement.
-This is placeholder documentation line number 140 to satisfy the 500-line requirement.
-This is placeholder documentation line number 141 to satisfy the 500-line requirement.
-This is placeholder documentation line number 142 to satisfy the 500-line requirement.
-This is placeholder documentation line number 143 to satisfy the 500-line requirement.
-This is placeholder documentation line number 144 to satisfy the 500-line requirement.
-This is placeholder documentation line number 145 to satisfy the 500-line requirement.
-This is placeholder documentation line number 146 to satisfy the 500-line requirement.
-This is placeholder documentation line number 147 to satisfy the 500-line requirement.
-This is placeholder documentation line number 148 to satisfy the 500-line requirement.
-This is placeholder documentation line number 149 to satisfy the 500-line requirement.
-This is placeholder documentation line number 150 to satisfy the 500-line requirement.
-This is placeholder documentation line number 151 to satisfy the 500-line requirement.
-This is placeholder documentation line number 152 to satisfy the 500-line requirement.
-This is placeholder documentation line number 153 to satisfy the 500-line requirement.
-This is placeholder documentation line number 154 to satisfy the 500-line requirement.
-This is placeholder documentation line number 155 to satisfy the 500-line requirement.
-This is placeholder documentation line number 156 to satisfy the 500-line requirement.
-This is placeholder documentation line number 157 to satisfy the 500-line requirement.
-This is placeholder documentation line number 158 to satisfy the 500-line requirement.
-This is placeholder documentation line number 159 to satisfy the 500-line requirement.
-This is placeholder documentation line number 160 to satisfy the 500-line requirement.
-This is placeholder documentation line number 161 to satisfy the 500-line requirement.
-This is placeholder documentation line number 162 to satisfy the 500-line requirement.
-This is placeholder documentation line number 163 to satisfy the 500-line requirement.
-This is placeholder documentation line number 164 to satisfy the 500-line requirement.
-This is placeholder documentation line number 165 to satisfy the 500-line requirement.
-This is placeholder documentation line number 166 to satisfy the 500-line requirement.
-This is placeholder documentation line number 167 to satisfy the 500-line requirement.
-This is placeholder documentation line number 168 to satisfy the 500-line requirement.
-This is placeholder documentation line number 169 to satisfy the 500-line requirement.
-This is placeholder documentation line number 170 to satisfy the 500-line requirement.
-This is placeholder documentation line number 171 to satisfy the 500-line requirement.
-This is placeholder documentation line number 172 to satisfy the 500-line requirement.
-This is placeholder documentation line number 173 to satisfy the 500-line requirement.
-This is placeholder documentation line number 174 to satisfy the 500-line requirement.
-This is placeholder documentation line number 175 to satisfy the 500-line requirement.
-This is placeholder documentation line number 176 to satisfy the 500-line requirement.
-This is placeholder documentation line number 177 to satisfy the 500-line requirement.
-This is placeholder documentation line number 178 to satisfy the 500-line requirement.
-This is placeholder documentation line number 179 to satisfy the 500-line requirement.
-This is placeholder documentation line number 180 to satisfy the 500-line requirement.
-This is placeholder documentation line number 181 to satisfy the 500-line requirement.
-This is placeholder documentation line number 182 to satisfy the 500-line requirement.
-This is placeholder documentation line number 183 to satisfy the 500-line requirement.
-This is placeholder documentation line number 184 to satisfy the 500-line requirement.
-This is placeholder documentation line number 185 to satisfy the 500-line requirement.
-This is placeholder documentation line number 186 to satisfy the 500-line requirement.
-This is placeholder documentation line number 187 to satisfy the 500-line requirement.
-This is placeholder documentation line number 188 to satisfy the 500-line requirement.
-This is placeholder documentation line number 189 to satisfy the 500-line requirement.
-This is placeholder documentation line number 190 to satisfy the 500-line requirement.
-This is placeholder documentation line number 191 to satisfy the 500-line requirement.
-This is placeholder documentation line number 192 to satisfy the 500-line requirement.
-This is placeholder documentation line number 193 to satisfy the 500-line requirement.
-This is placeholder documentation line number 194 to satisfy the 500-line requirement.
-This is placeholder documentation line number 195 to satisfy the 500-line requirement.
-This is placeholder documentation line number 196 to satisfy the 500-line requirement.
-This is placeholder documentation line number 197 to satisfy the 500-line requirement.
-This is placeholder documentation line number 198 to satisfy the 500-line requirement.
-This is placeholder documentation line number 199 to satisfy the 500-line requirement.
-This is placeholder documentation line number 200 to satisfy the 500-line requirement.
-This is placeholder documentation line number 201 to satisfy the 500-line requirement.
-This is placeholder documentation line number 202 to satisfy the 500-line requirement.
-This is placeholder documentation line number 203 to satisfy the 500-line requirement.
-This is placeholder documentation line number 204 to satisfy the 500-line requirement.
-This is placeholder documentation line number 205 to satisfy the 500-line requirement.
-This is placeholder documentation line number 206 to satisfy the 500-line requirement.
-This is placeholder documentation line number 207 to satisfy the 500-line requirement.
-This is placeholder documentation line number 208 to satisfy the 500-line requirement.
-This is placeholder documentation line number 209 to satisfy the 500-line requirement.
-This is placeholder documentation line number 210 to satisfy the 500-line requirement.
-This is placeholder documentation line number 211 to satisfy the 500-line requirement.
-This is placeholder documentation line number 212 to satisfy the 500-line requirement.
-This is placeholder documentation line number 213 to satisfy the 500-line requirement.
-This is placeholder documentation line number 214 to satisfy the 500-line requirement.
-This is placeholder documentation line number 215 to satisfy the 500-line requirement.
-This is placeholder documentation line number 216 to satisfy the 500-line requirement.
-This is placeholder documentation line number 217 to satisfy the 500-line requirement.
-This is placeholder documentation line number 218 to satisfy the 500-line requirement.
-This is placeholder documentation line number 219 to satisfy the 500-line requirement.
-This is placeholder documentation line number 220 to satisfy the 500-line requirement.
-This is placeholder documentation line number 221 to satisfy the 500-line requirement.
-This is placeholder documentation line number 222 to satisfy the 500-line requirement.
-This is placeholder documentation line number 223 to satisfy the 500-line requirement.
-This is placeholder documentation line number 224 to satisfy the 500-line requirement.
-This is placeholder documentation line number 225 to satisfy the 500-line requirement.
-This is placeholder documentation line number 226 to satisfy the 500-line requirement.
-This is placeholder documentation line number 227 to satisfy the 500-line requirement.
-This is placeholder documentation line number 228 to satisfy the 500-line requirement.
-This is placeholder documentation line number 229 to satisfy the 500-line requirement.
-This is placeholder documentation line number 230 to satisfy the 500-line requirement.
-This is placeholder documentation line number 231 to satisfy the 500-line requirement.
-This is placeholder documentation line number 232 to satisfy the 500-line requirement.
-This is placeholder documentation line number 233 to satisfy the 500-line requirement.
-This is placeholder documentation line number 234 to satisfy the 500-line requirement.
-This is placeholder documentation line number 235 to satisfy the 500-line requirement.
-This is placeholder documentation line number 236 to satisfy the 500-line requirement.
-This is placeholder documentation line number 237 to satisfy the 500-line requirement.
-This is placeholder documentation line number 238 to satisfy the 500-line requirement.
-This is placeholder documentation line number 239 to satisfy the 500-line requirement.
-This is placeholder documentation line number 240 to satisfy the 500-line requirement.
-This is placeholder documentation line number 241 to satisfy the 500-line requirement.
-This is placeholder documentation line number 242 to satisfy the 500-line requirement.
-This is placeholder documentation line number 243 to satisfy the 500-line requirement.
-This is placeholder documentation line number 244 to satisfy the 500-line requirement.
-This is placeholder documentation line number 245 to satisfy the 500-line requirement.
-This is placeholder documentation line number 246 to satisfy the 500-line requirement.
-This is placeholder documentation line number 247 to satisfy the 500-line requirement.
-This is placeholder documentation line number 248 to satisfy the 500-line requirement.
-This is placeholder documentation line number 249 to satisfy the 500-line requirement.
-This is placeholder documentation line number 250 to satisfy the 500-line requirement.
-This is placeholder documentation line number 251 to satisfy the 500-line requirement.
-This is placeholder documentation line number 252 to satisfy the 500-line requirement.
-This is placeholder documentation line number 253 to satisfy the 500-line requirement.
-This is placeholder documentation line number 254 to satisfy the 500-line requirement.
-This is placeholder documentation line number 255 to satisfy the 500-line requirement.
-This is placeholder documentation line number 256 to satisfy the 500-line requirement.
-This is placeholder documentation line number 257 to satisfy the 500-line requirement.
-This is placeholder documentation line number 258 to satisfy the 500-line requirement.
-This is placeholder documentation line number 259 to satisfy the 500-line requirement.
-This is placeholder documentation line number 260 to satisfy the 500-line requirement.
-This is placeholder documentation line number 261 to satisfy the 500-line requirement.
-This is placeholder documentation line number 262 to satisfy the 500-line requirement.
-This is placeholder documentation line number 263 to satisfy the 500-line requirement.
-This is placeholder documentation line number 264 to satisfy the 500-line requirement.
-This is placeholder documentation line number 265 to satisfy the 500-line requirement.
-This is placeholder documentation line number 266 to satisfy the 500-line requirement.
-This is placeholder documentation line number 267 to satisfy the 500-line requirement.
-This is placeholder documentation line number 268 to satisfy the 500-line requirement.
-This is placeholder documentation line number 269 to satisfy the 500-line requirement.
-This is placeholder documentation line number 270 to satisfy the 500-line requirement.
-This is placeholder documentation line number 271 to satisfy the 500-line requirement.
-This is placeholder documentation line number 272 to satisfy the 500-line requirement.
-This is placeholder documentation line number 273 to satisfy the 500-line requirement.
-This is placeholder documentation line number 274 to satisfy the 500-line requirement.
-This is placeholder documentation line number 275 to satisfy the 500-line requirement.
-This is placeholder documentation line number 276 to satisfy the 500-line requirement.
-This is placeholder documentation line number 277 to satisfy the 500-line requirement.
-This is placeholder documentation line number 278 to satisfy the 500-line requirement.
-This is placeholder documentation line number 279 to satisfy the 500-line requirement.
-This is placeholder documentation line number 280 to satisfy the 500-line requirement.
-This is placeholder documentation line number 281 to satisfy the 500-line requirement.
-This is placeholder documentation line number 282 to satisfy the 500-line requirement.
-This is placeholder documentation line number 283 to satisfy the 500-line requirement.
-This is placeholder documentation line number 284 to satisfy the 500-line requirement.
-This is placeholder documentation line number 285 to satisfy the 500-line requirement.
-This is placeholder documentation line number 286 to satisfy the 500-line requirement.
-This is placeholder documentation line number 287 to satisfy the 500-line requirement.
-This is placeholder documentation line number 288 to satisfy the 500-line requirement.
-This is placeholder documentation line number 289 to satisfy the 500-line requirement.
-This is placeholder documentation line number 290 to satisfy the 500-line requirement.
-This is placeholder documentation line number 291 to satisfy the 500-line requirement.
-This is placeholder documentation line number 292 to satisfy the 500-line requirement.
-This is placeholder documentation line number 293 to satisfy the 500-line requirement.
-This is placeholder documentation line number 294 to satisfy the 500-line requirement.
-This is placeholder documentation line number 295 to satisfy the 500-line requirement.
-This is placeholder documentation line number 296 to satisfy the 500-line requirement.
-This is placeholder documentation line number 297 to satisfy the 500-line requirement.
-This is placeholder documentation line number 298 to satisfy the 500-line requirement.
-This is placeholder documentation line number 299 to satisfy the 500-line requirement.
-This is placeholder documentation line number 300 to satisfy the 500-line requirement.
-This is placeholder documentation line number 301 to satisfy the 500-line requirement.
-This is placeholder documentation line number 302 to satisfy the 500-line requirement.
-This is placeholder documentation line number 303 to satisfy the 500-line requirement.
-This is placeholder documentation line number 304 to satisfy the 500-line requirement.
-This is placeholder documentation line number 305 to satisfy the 500-line requirement.
-This is placeholder documentation line number 306 to satisfy the 500-line requirement.
-This is placeholder documentation line number 307 to satisfy the 500-line requirement.
-This is placeholder documentation line number 308 to satisfy the 500-line requirement.
-This is placeholder documentation line number 309 to satisfy the 500-line requirement.
-This is placeholder documentation line number 310 to satisfy the 500-line requirement.
-This is placeholder documentation line number 311 to satisfy the 500-line requirement.
-This is placeholder documentation line number 312 to satisfy the 500-line requirement.
-This is placeholder documentation line number 313 to satisfy the 500-line requirement.
-This is placeholder documentation line number 314 to satisfy the 500-line requirement.
-This is placeholder documentation line number 315 to satisfy the 500-line requirement.
-This is placeholder documentation line number 316 to satisfy the 500-line requirement.
-This is placeholder documentation line number 317 to satisfy the 500-line requirement.
-This is placeholder documentation line number 318 to satisfy the 500-line requirement.
-This is placeholder documentation line number 319 to satisfy the 500-line requirement.
-This is placeholder documentation line number 320 to satisfy the 500-line requirement.
-This is placeholder documentation line number 321 to satisfy the 500-line requirement.
-This is placeholder documentation line number 322 to satisfy the 500-line requirement.
-This is placeholder documentation line number 323 to satisfy the 500-line requirement.
-This is placeholder documentation line number 324 to satisfy the 500-line requirement.
-This is placeholder documentation line number 325 to satisfy the 500-line requirement.
-This is placeholder documentation line number 326 to satisfy the 500-line requirement.
-This is placeholder documentation line number 327 to satisfy the 500-line requirement.
-This is placeholder documentation line number 328 to satisfy the 500-line requirement.
-This is placeholder documentation line number 329 to satisfy the 500-line requirement.
-This is placeholder documentation line number 330 to satisfy the 500-line requirement.
-This is placeholder documentation line number 331 to satisfy the 500-line requirement.
-This is placeholder documentation line number 332 to satisfy the 500-line requirement.
-This is placeholder documentation line number 333 to satisfy the 500-line requirement.
-This is placeholder documentation line number 334 to satisfy the 500-line requirement.
-This is placeholder documentation line number 335 to satisfy the 500-line requirement.
-This is placeholder documentation line number 336 to satisfy the 500-line requirement.
-This is placeholder documentation line number 337 to satisfy the 500-line requirement.
-This is placeholder documentation line number 338 to satisfy the 500-line requirement.
-This is placeholder documentation line number 339 to satisfy the 500-line requirement.
-This is placeholder documentation line number 340 to satisfy the 500-line requirement.
-This is placeholder documentation line number 341 to satisfy the 500-line requirement.
-This is placeholder documentation line number 342 to satisfy the 500-line requirement.
-This is placeholder documentation line number 343 to satisfy the 500-line requirement.
-This is placeholder documentation line number 344 to satisfy the 500-line requirement.
-This is placeholder documentation line number 345 to satisfy the 500-line requirement.
-This is placeholder documentation line number 346 to satisfy the 500-line requirement.
-This is placeholder documentation line number 347 to satisfy the 500-line requirement.
-This is placeholder documentation line number 348 to satisfy the 500-line requirement.
-This is placeholder documentation line number 349 to satisfy the 500-line requirement.
-This is placeholder documentation line number 350 to satisfy the 500-line requirement.
-This is placeholder documentation line number 351 to satisfy the 500-line requirement.
-This is placeholder documentation line number 352 to satisfy the 500-line requirement.
-This is placeholder documentation line number 353 to satisfy the 500-line requirement.
-This is placeholder documentation line number 354 to satisfy the 500-line requirement.
-This is placeholder documentation line number 355 to satisfy the 500-line requirement.
-This is placeholder documentation line number 356 to satisfy the 500-line requirement.
-This is placeholder documentation line number 357 to satisfy the 500-line requirement.
-This is placeholder documentation line number 358 to satisfy the 500-line requirement.
-This is placeholder documentation line number 359 to satisfy the 500-line requirement.
-This is placeholder documentation line number 360 to satisfy the 500-line requirement.
-This is placeholder documentation line number 361 to satisfy the 500-line requirement.
-This is placeholder documentation line number 362 to satisfy the 500-line requirement.
-This is placeholder documentation line number 363 to satisfy the 500-line requirement.
-This is placeholder documentation line number 364 to satisfy the 500-line requirement.
-This is placeholder documentation line number 365 to satisfy the 500-line requirement.
-This is placeholder documentation line number 366 to satisfy the 500-line requirement.
-This is placeholder documentation line number 367 to satisfy the 500-line requirement.
-This is placeholder documentation line number 368 to satisfy the 500-line requirement.
-This is placeholder documentation line number 369 to satisfy the 500-line requirement.
-This is placeholder documentation line number 370 to satisfy the 500-line requirement.
-This is placeholder documentation line number 371 to satisfy the 500-line requirement.
-This is placeholder documentation line number 372 to satisfy the 500-line requirement.
-This is placeholder documentation line number 373 to satisfy the 500-line requirement.
-This is placeholder documentation line number 374 to satisfy the 500-line requirement.
-This is placeholder documentation line number 375 to satisfy the 500-line requirement.
-This is placeholder documentation line number 376 to satisfy the 500-line requirement.
-This is placeholder documentation line number 377 to satisfy the 500-line requirement.
-This is placeholder documentation line number 378 to satisfy the 500-line requirement.
-This is placeholder documentation line number 379 to satisfy the 500-line requirement.
-This is placeholder documentation line number 380 to satisfy the 500-line requirement.
-This is placeholder documentation line number 381 to satisfy the 500-line requirement.
-This is placeholder documentation line number 382 to satisfy the 500-line requirement.
-This is placeholder documentation line number 383 to satisfy the 500-line requirement.
-This is placeholder documentation line number 384 to satisfy the 500-line requirement.
-This is placeholder documentation line number 385 to satisfy the 500-line requirement.
-This is placeholder documentation line number 386 to satisfy the 500-line requirement.
-This is placeholder documentation line number 387 to satisfy the 500-line requirement.
-This is placeholder documentation line number 388 to satisfy the 500-line requirement.
-This is placeholder documentation line number 389 to satisfy the 500-line requirement.
-This is placeholder documentation line number 390 to satisfy the 500-line requirement.
-This is placeholder documentation line number 391 to satisfy the 500-line requirement.
-This is placeholder documentation line number 392 to satisfy the 500-line requirement.
-This is placeholder documentation line number 393 to satisfy the 500-line requirement.
-This is placeholder documentation line number 394 to satisfy the 500-line requirement.
-This is placeholder documentation line number 395 to satisfy the 500-line requirement.
-This is placeholder documentation line number 396 to satisfy the 500-line requirement.
-This is placeholder documentation line number 397 to satisfy the 500-line requirement.
-This is placeholder documentation line number 398 to satisfy the 500-line requirement.
-This is placeholder documentation line number 399 to satisfy the 500-line requirement.
-This is placeholder documentation line number 400 to satisfy the 500-line requirement.
-This is placeholder documentation line number 401 to satisfy the 500-line requirement.
-This is placeholder documentation line number 402 to satisfy the 500-line requirement.
-This is placeholder documentation line number 403 to satisfy the 500-line requirement.
-This is placeholder documentation line number 404 to satisfy the 500-line requirement.
-This is placeholder documentation line number 405 to satisfy the 500-line requirement.
-This is placeholder documentation line number 406 to satisfy the 500-line requirement.
-This is placeholder documentation line number 407 to satisfy the 500-line requirement.
-This is placeholder documentation line number 408 to satisfy the 500-line requirement.
-This is placeholder documentation line number 409 to satisfy the 500-line requirement.
-This is placeholder documentation line number 410 to satisfy the 500-line requirement.
-This is placeholder documentation line number 411 to satisfy the 500-line requirement.
-This is placeholder documentation line number 412 to satisfy the 500-line requirement.
-This is placeholder documentation line number 413 to satisfy the 500-line requirement.
-This is placeholder documentation line number 414 to satisfy the 500-line requirement.
-This is placeholder documentation line number 415 to satisfy the 500-line requirement.
-This is placeholder documentation line number 416 to satisfy the 500-line requirement.
-This is placeholder documentation line number 417 to satisfy the 500-line requirement.
-This is placeholder documentation line number 418 to satisfy the 500-line requirement.
-This is placeholder documentation line number 419 to satisfy the 500-line requirement.
-This is placeholder documentation line number 420 to satisfy the 500-line requirement.
-This is placeholder documentation line number 421 to satisfy the 500-line requirement.
-This is placeholder documentation line number 422 to satisfy the 500-line requirement.
-This is placeholder documentation line number 423 to satisfy the 500-line requirement.
-This is placeholder documentation line number 424 to satisfy the 500-line requirement.
-This is placeholder documentation line number 425 to satisfy the 500-line requirement.
-This is placeholder documentation line number 426 to satisfy the 500-line requirement.
-This is placeholder documentation line number 427 to satisfy the 500-line requirement.
-This is placeholder documentation line number 428 to satisfy the 500-line requirement.
-This is placeholder documentation line number 429 to satisfy the 500-line requirement.
-This is placeholder documentation line number 430 to satisfy the 500-line requirement.
-This is placeholder documentation line number 431 to satisfy the 500-line requirement.
-This is placeholder documentation line number 432 to satisfy the 500-line requirement.
-This is placeholder documentation line number 433 to satisfy the 500-line requirement.
-This is placeholder documentation line number 434 to satisfy the 500-line requirement.
-This is placeholder documentation line number 435 to satisfy the 500-line requirement.
-This is placeholder documentation line number 436 to satisfy the 500-line requirement.
-This is placeholder documentation line number 437 to satisfy the 500-line requirement.
-This is placeholder documentation line number 438 to satisfy the 500-line requirement.
-This is placeholder documentation line number 439 to satisfy the 500-line requirement.
-This is placeholder documentation line number 440 to satisfy the 500-line requirement.
-This is placeholder documentation line number 441 to satisfy the 500-line requirement.
-This is placeholder documentation line number 442 to satisfy the 500-line requirement.
-This is placeholder documentation line number 443 to satisfy the 500-line requirement.
-This is placeholder documentation line number 444 to satisfy the 500-line requirement.
-This is placeholder documentation line number 445 to satisfy the 500-line requirement.
-This is placeholder documentation line number 446 to satisfy the 500-line requirement.
-This is placeholder documentation line number 447 to satisfy the 500-line requirement.
-This is placeholder documentation line number 448 to satisfy the 500-line requirement.
-This is placeholder documentation line number 449 to satisfy the 500-line requirement.
-This is placeholder documentation line number 450 to satisfy the 500-line requirement.
-This is placeholder documentation line number 451 to satisfy the 500-line requirement.
-This is placeholder documentation line number 452 to satisfy the 500-line requirement.
-This is placeholder documentation line number 453 to satisfy the 500-line requirement.
-This is placeholder documentation line number 454 to satisfy the 500-line requirement.
-This is placeholder documentation line number 455 to satisfy the 500-line requirement.
-This is placeholder documentation line number 456 to satisfy the 500-line requirement.
-This is placeholder documentation line number 457 to satisfy the 500-line requirement.
-This is placeholder documentation line number 458 to satisfy the 500-line requirement.
-This is placeholder documentation line number 459 to satisfy the 500-line requirement.
-This is placeholder documentation line number 460 to satisfy the 500-line requirement.
-This is placeholder documentation line number 461 to satisfy the 500-line requirement.
-This is placeholder documentation line number 462 to satisfy the 500-line requirement.
-This is placeholder documentation line number 463 to satisfy the 500-line requirement.
-This is placeholder documentation line number 464 to satisfy the 500-line requirement.
-This is placeholder documentation line number 465 to satisfy the 500-line requirement.
-This is placeholder documentation line number 466 to satisfy the 500-line requirement.
-This is placeholder documentation line number 467 to satisfy the 500-line requirement.
-This is placeholder documentation line number 468 to satisfy the 500-line requirement.
-This is placeholder documentation line number 469 to satisfy the 500-line requirement.
-This is placeholder documentation line number 470 to satisfy the 500-line requirement.
-This is placeholder documentation line number 471 to satisfy the 500-line requirement.
-This is placeholder documentation line number 472 to satisfy the 500-line requirement.
-This is placeholder documentation line number 473 to satisfy the 500-line requirement.
-This is placeholder documentation line number 474 to satisfy the 500-line requirement.
-This is placeholder documentation line number 475 to satisfy the 500-line requirement.
-This is placeholder documentation line number 476 to satisfy the 500-line requirement.
-This is placeholder documentation line number 477 to satisfy the 500-line requirement.
-This is placeholder documentation line number 478 to satisfy the 500-line requirement.
-This is placeholder documentation line number 479 to satisfy the 500-line requirement.
-This is placeholder documentation line number 480 to satisfy the 500-line requirement.
-This is placeholder documentation line number 481 to satisfy the 500-line requirement.
-This is placeholder documentation line number 482 to satisfy the 500-line requirement.
-This is placeholder documentation line number 483 to satisfy the 500-line requirement.
-This is placeholder documentation line number 484 to satisfy the 500-line requirement.
-This is placeholder documentation line number 485 to satisfy the 500-line requirement.
-This is placeholder documentation line number 486 to satisfy the 500-line requirement.
-This is placeholder documentation line number 487 to satisfy the 500-line requirement.
-This is placeholder documentation line number 488 to satisfy the 500-line requirement.
-This is placeholder documentation line number 489 to satisfy the 500-line requirement.
-This is placeholder documentation line number 490 to satisfy the 500-line requirement.
-This is placeholder documentation line number 491 to satisfy the 500-line requirement.
-This is placeholder documentation line number 492 to satisfy the 500-line requirement.
-This is placeholder documentation line number 493 to satisfy the 500-line requirement.
-This is placeholder documentation line number 494 to satisfy the 500-line requirement.
-This is placeholder documentation line number 495 to satisfy the 500-line requirement.
-This is placeholder documentation line number 496 to satisfy the 500-line requirement.
-This is placeholder documentation line number 497 to satisfy the 500-line requirement.
-This is placeholder documentation line number 498 to satisfy the 500-line requirement.
-This is placeholder documentation line number 499 to satisfy the 500-line requirement.
-This is placeholder documentation line number 500 to satisfy the 500-line requirement.
+---
+
+## ✨ Key Features
+
+### 🔗 URL Shortening & Custom Slugs
+- **Instant Generation**: Generate random 6-character short codes or customize your own vanity slug.
+- **Link Expiration**: Set optional expiration dates and times for time-sensitive campaigns.
+- **QR Code Generator**: Automatic high-resolution QR code creation for every shortened link with one-click PNG download.
+
+### 🛡️ Access Control & Social Gates
+- **Password Protection**: Protect sensitive destinations behind a custom access code.
+- **Social Action Gate**: Require visitors to subscribe or follow your social accounts (YouTube, Instagram, Facebook, WhatsApp, X/Twitter, LinkedIn, TikTok) before accessing the target link.
+- **Custom Splash Screen**: Choose between dynamic glowing ring animations or smooth gradient progress bars with custom status text.
+
+### 📊 Real-Time Analytics & Device Intel
+- **Geolocation & Network**: Detect visitor country, city, and IP passively.
+- **Hardware Profile**: Log CPU cores (`hardware_concurrency`), RAM memory, and GPU render engines.
+- **Client Specs**: Monitor screen resolution, color depth, browser, OS, and battery status.
+- **Live Feed**: Auto-updating visitor log table with interactive map coordinate launchers.
+
+### 🎨 Built-in Media Tools
+- **Image Converter & Compressor**: Built-in client-side image compression with target KB size adjustments and WebP/PNG/JPEG conversion.
+- **Batch Export**: Download converted assets individually or packed into a ZIP archive.
+
+---
+
+## 🛠️ Architecture & Tech Stack
+
+| Category | Technology |
+|---|---|
+| **Frontend Framework** | [React 19](https://react.dev/) |
+| **Build Tool** | [Vite 6](https://vitejs.dev/) |
+| **Language** | [TypeScript](https://www.typescriptlang.org/) |
+| **Styling** | [Tailwind CSS v4](https://tailwindcss.com/) |
+| **Icons** | [Lucide React](https://lucide.dev/) |
+| **Animation Engine** | [Motion (Framer Motion)](https://motion.dev/) |
+| **Database & Auth** | [Supabase (PostgreSQL)](https://supabase.com/) |
+| **Client Utilities** | `qrcode.react`, `ua-parser-js`, `jszip`, `file-saver` |
+
+---
+
+## 📂 Project Structure
+
+```bash
+├── index.html               # Application HTML entry point
+├── metadata.json            # AI Studio applet configuration
+├── package.json             # NPM dependencies & scripts
+├── vite.config.ts           # Vite + Tailwind + PWA configuration
+├── tsconfig.json            # TypeScript configuration
+├── src/
+│   ├── main.tsx             # React root mount
+│   ├── App.tsx              # Application routing (/ , /ms-admin, /:shortCode)
+│   ├── index.css            # Global CSS & Tailwind imports
+│   ├── components/
+│   │   ├── ImageConverter.tsx   # Image optimizer & batch converter
+│   │   ├── SaqibSignature.tsx   # Verified Author Signature badge (By MS)
+│   │   └── SocialIcon.tsx       # Brand vector icon renderer
+│   ├── core/
+│   │   ├── engine.ts        # Client integrity helpers
+│   │   └── sys.ts           # Core system initializer
+│   ├── lib/
+│   │   ├── imageUpload.ts   # Image upload provider utility
+│   │   ├── supabase.ts      # Supabase client connection
+│   │   └── utils.ts         # Tailwind merger & slug generator
+│   └── pages/
+│       ├── Home.tsx         # Dashboard for link creation, editing & analytics
+│       ├── Admin.tsx        # Super-admin control panel & global data viewer
+│       └── Redirect.tsx     # Dynamic redirection, social gate & analytics tracker
+```
+
+---
+
+## 🚀 Getting Started
+
+### 1. Prerequisites
+- **Node.js**: Version 20+ (Node.js 22 recommended)
+- **NPM**: Version 9+
+
+### 2. Installation
+
+Clone or open the repository, then install dependencies:
+
+```bash
+npm install
+```
+
+### 3. Environment Setup
+
+Create a `.env` file in the root directory (based on `.env.example`):
+
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+GEMINI_API_KEY=your-optional-gemini-key
+```
+
+### 4. Running the Development Server
+
+Start the local server on port 3000:
+
+```bash
+npm run dev
+```
+
+The application will be accessible at: `http://localhost:3000`
+
+---
+
+## 🗄️ Database Setup (Supabase SQL)
+
+To enable persistent URLs and visitor analytics, run the following SQL script in your **Supabase SQL Editor**:
+
+```sql
+-- 1. Create urls table
+create table if not exists public.urls (
+  id uuid default gen_random_uuid() primary key,
+  domain text not null,
+  short_code text not null,
+  long_url text not null,
+  password text,
+  social_gate_title text,
+  social_gate_url text,
+  social_gate_icon text,
+  social_gate_description text,
+  social_gate_button_text text,
+  animation_type text default 'ring',
+  animation_text text default 'LOADING',
+  capture_camera boolean default false,
+  capture_location boolean default false,
+  expires_at timestamp with time zone,
+  device_id text,
+  is_pinned boolean default false,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  unique (domain, short_code)
+);
+
+-- 2. Create link_analytics table
+create table if not exists public.link_analytics (
+  id uuid default gen_random_uuid() primary key,
+  url_id uuid references public.urls(id) on delete cascade,
+  ip_address text,
+  device_type text,
+  browser text,
+  os text,
+  referrer text,
+  captured_image text,
+  latitude double precision,
+  longitude double precision,
+  location_name text,
+  battery_level float,
+  is_charging boolean,
+  network_type text,
+  screen_resolution text,
+  language text,
+  hardware_concurrency integer,
+  device_memory integer,
+  color_depth integer,
+  timezone text,
+  webgl_vendor text,
+  webgl_renderer text,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- 3. Enable Row Level Security (RLS)
+alter table public.urls enable row level security;
+alter table public.link_analytics enable row level security;
+
+-- 4. Set Public Access Policies
+create policy "Allow public read access" on public.urls for select using (true);
+create policy "Allow public insert access" on public.urls for insert with check (true);
+create policy "Allow public update access" on public.urls for update using (true);
+create policy "Allow public delete access" on public.urls for delete using (true);
+
+create policy "Allow public read access for analytics" on public.link_analytics for select using (true);
+create policy "Allow public insert access for analytics" on public.link_analytics for insert with check (true);
+create policy "Allow public delete access for analytics" on public.link_analytics for delete using (true);
+```
+
+---
+
+## 🔒 Admin Access
+
+The application features an administrative interface:
+- **Routes**: `/ms-admin` or `/admin`
+- **Shortcut**: Double-click the signature badge (`by ms`) anywhere on the site.
+- **Authentication**: Enter your access key (`ms99` / `saqib99`) to unlock the global intelligence console.
+
+---
+
+## 💎 Credits & Author
+
+Crafted with care and precision.
+
+**Maintained & Developed:** `by ms`
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - feel free to build, customize, and deploy.
